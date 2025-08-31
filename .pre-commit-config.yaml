@@ -1,0 +1,17 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+    - id: check-merge-conflict
+      name: "🌳 git · Detect conflict markers"
+    - id: check-added-large-files
+      name: "🌳 git · Block large file commits"
+      args: ['--maxkb=5000']
+    - id: trailing-whitespace
+      name: "🌳 git · Check For Trailing Whitespace"
+      args: [ --markdown-linebreak-ext=md ]
+    - id: end-of-file-fixer
+      name: "🌳 git · Check End-Of-Files"
+    - id: mixed-line-ending
+      name: "🌳 git · Check For Mixed Line Ending"
+      args: ['--fix=lf']
