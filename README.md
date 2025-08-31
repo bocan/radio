@@ -10,6 +10,7 @@ Built with **vanilla HTML/CSS/JS**, no frameworks required.
 ## ✨ Features
 
 - Lightweight, responsive UI
+- Can switch between light and dark modes
 - Station cards with name, description, and location
 - Sticky player at the bottom of the page
 - Keyboard shortcuts:
@@ -30,4 +31,41 @@ Built with **vanilla HTML/CSS/JS**, no frameworks required.
 git clone https://github.com/<your-username>/<your-repo>.git
 cd <your-repo>
 # Open index.html in your browser
+```
 
+### Customizing Stations
+
+All stations are defined in radio.js.  Finding the raw stream URLs can be tricky. Try inspecting the network requests on the station's web player or searching online. Finding their metadata API (if it's available at all) is even trickier as they won't ever advertise it. The browser's developer tools are your friend here. Even once you find it, everyone does it differently. It could be json, xml, raw text, or even exotic formats, so you'll need to write a custom parser function for each one.
+
+```js
+const STATIONS = [
+  {
+    id: 'groove-salad',
+    name: 'SomaFM: Groove Salad',
+    location: 'San Francisco, US',
+    description: 'Ambient / downtempo beats.',
+    streams: [
+      { url: 'https://ice1.somafm.com/groovesalad-128-mp3', type: 'audio/mpeg' }
+    ],
+    metadataUrl: 'https://somafm.com/songs/groovesalad.json',
+    parseNowPlaying: data => {
+      const s = Array.isArray(data?.songs) ? data.songs[0] : null;
+      if (!s) return null;
+      return `${s.artist} — ${s.title}`;
+    }
+  },
+  // … more stations
+];
+
+```
+To add your own station, append another object to this array.
+
+### 📦 Deployment
+
+Because this is a static site:
+
+GitHub Pages → easiest option
+
+Netlify / Vercel → drag-and-drop or link repo
+
+Any static web server (Nginx, Apache, S3+CloudFront, etc.)
