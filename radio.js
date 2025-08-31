@@ -93,7 +93,7 @@ const STATIONS = [
     location: 'New Orleans, Louisiana',
     description: "<a href='https://www.wwoz.org/' target=_blank>WWOZ</a> 99.7 FM is the New Orleans Jazz and Heritage Station, a community radio station currently operating out of the French Quarter in New Orleans.",
     streams: [
-      { url: 'https://wwoz-sc.streamguys1.com/wwoz-hi.mp3', type: 'audio/mpeg' } 
+      { url: 'https://wwoz-sc.streamguys1.com/wwoz-hi.mp3', type: 'audio/mpeg' }
     ],
     metadataUrl: 'https://chris.funderburg.me/proxy/wwoz', // I proxy 'https://www.wwoz.org/api/tracks/current',
     parseNowPlaying: (data) => {
