@@ -1,0 +1,92 @@
+<!--
+MIT License
+
+Copyright (c) 2025 Chris Funderburg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A hand-picked collection of 8 radio streams I like to listen to in the dead of the night.">
+  <title>Chris's Funderburg's 8 Radio Stations</title>
+  <link rel="stylesheet" href="radio.css">
+  <meta name="keywords" content="radio, stations, nighttime, stream, streaming">
+  <meta name="author" content="Chris Funderburg">
+  <meta property="og:title" content="8 Radio Stations" />
+  <meta property="og:description" content="A hand-picked collection of 8 radio streams I like to listen to in the dead of the night" />
+  <meta property="og:image" content="https://chris.funderburg.me/radio/preview.png" />
+  <meta property="og:url" content="https://chris.funderburg.me/radio" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo" aria-hidden="true"></div>
+      <h1>8 Radio Stations</h1>
+        <!-- Theme toggle button -->
+  <button class="icon theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
+    <!-- Sun/Moon combo (we’ll swap via JS) -->
+    <svg id="iconSun"  xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+      <path d="M6.76 4.84l-1.8-1.79L3.17 4.84l1.79 1.8 1.8-1.8zM1 13h3v-2H1v2zm10 10h2v-3h-2v3zm9.83-18.16l-1.79-1.79-1.8 1.79 1.8 1.8 1.79-1.8zM20 13h3v-2h-3v2zm-8-7a5 5 0 100 10 5 5 0 000-10zm7.24 12.16l1.8 1.79 1.79-1.79-1.79-1.8-1.8 1.8zM4.84 17.24l-1.79 1.8 1.79 1.79 1.8-1.79-1.8-1.8z"/>
+    </svg>
+    <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21.75 15.5A9.5 9.5 0 1111.5 2a.75.75 0 01.64 1.12 7.999 7.999 0 009.74 11.26.75.75 0 01-.13 1.12z"/>
+    </svg>
+  </button>
+    </header>
+    <p class="hint">A hand-picked collection of 8 radio streams I like to listen to in the dead of the night.</p>
+
+    <div id="stations" class="grid" role="list" aria-label="Station list"></div>
+
+    <p class="hint">
+    Tips: Press <kbd>Space</kbd> to Play/Pause; <kbd>←/→</kbd> to adjust volume. This radio page is open source. <a href="https://chris.funderburg.me/" target=_blank>More about me here</a>.
+    </p>
+  </div>
+
+  <!-- Sticky Player UI -->
+  <div class="player" role="region" aria-label="Player">
+    <div class="player-inner">
+      <button class="icon" id="btnPlay" aria-label="Play/Pause" title="Play/Pause">
+        <!-- Play icon -->
+        <svg id="icoPlay" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <!-- Pause icon (hidden by default) -->
+        <svg id="icoPause" style="display:none" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+      </button>
+
+      <div class="np">
+        <div class="label">Now Playing</div>
+        <div class="value" id="nowPlaying">—</div>
+      </div>
+
+      <div class="vol-wrap" title="Volume">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+        <input id="volume" type="range" min="0" max="1" step="0.01" />
+      </div>
+    </div>
+  </div>
+
+  <audio id="audio" preload="none" crossorigin="anonymous"></audio>
+
+  <script src="lightdark.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="radio.js"></script>
+</body>
+</html>
