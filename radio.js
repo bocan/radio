@@ -143,7 +143,7 @@ const STATIONS = [
     id: 'kennetradio',
     name: 'Kennet Radio',
     location: 'Newbury, United Kingdom',
-    description: "<a href='https://kennetradio.com/' target=_blank>Kennet Radio</a> is my local community radio station, broadcasting 24/7/365 on 106.7 FM to Newbury and Thatcham. Formed in October 2012 as a not-for-profit, volunteer-led organisation, they were awarded a full-time FM Community Radio broadcasting licence by Ofcom in 2016 and have been broadcasting on FM since March 2018.",
+    description: "<a href='https://kennetradio.com/' target=_blank>Kennet Radio</a> is my local community radio station, broadcasting on 106.7 FM to Newbury and Thatcham. Formed in October 2012 as a not-for-profit, volunteer-led organisation, they were awarded a Community Radio broadcasting licence by Ofcom in 2016 and have been broadcasting on FM since March 2018.",
     streams: [
       { url: 'https://stream.kennetradio.com/128.mp3', type: 'audio/aac' }
     ],
