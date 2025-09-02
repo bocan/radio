@@ -30,8 +30,8 @@ It's running live at: [https://chris.funderburg.me/radio/](https://chris.funderb
 ### Clone & run locally
 
 ```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/bocan/radio.git
+cd radio
 # Open index.html in your browser
 ```
 
