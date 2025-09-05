@@ -1,7 +1,3 @@
-  <!-- Drop this canvas anywhere on your page (ideally just before </body>) -->
-  <canvas id="autumn-leaves" aria-hidden="true"></canvas>
-
-  <script type="module">
     // Tiny autumn leaves, physics‑based, disturbed by the mouse as it passes.
     // No external assets; fine on any page; click‑through by default.
 
@@ -239,4 +235,3 @@
       requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
-  </script>
