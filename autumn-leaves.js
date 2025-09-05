@@ -140,7 +140,7 @@ class Leaf {
 }
 
 // Create/maintain a field of leaves sized to viewport area
-t leaves = [];
+const leaves = [];
 function desiredCount() {
   const area = (innerWidth * innerHeight) / (1280 * 720); // 720p baseline
   return Math.max(12, Math.round(cfg.baseCount * area));
