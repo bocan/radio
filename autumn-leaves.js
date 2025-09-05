@@ -3,7 +3,7 @@
 
 const cfg = {
   // Counts scale with viewport and motion preference
-  baseCount: 80,
+  baseCount: 15,
   sizeMin: 8,
   sizeMax: 18,
   gravity: 22,          // px/s^2 downward
@@ -109,6 +109,8 @@ class Leaf {
     this.poly = makeLeafPolygon();
     this.wobble = rand(0, Math.PI * 2);
     this.wobbleSpeed = rand(0.6, 1.3);
+    // Staggered start so groups don't synchronize
+    this.sleep = rand(0, 10.5); // seconds to wait before participating
   }
   draw(ctx) {
     ctx.save();
@@ -170,6 +172,12 @@ function tick(now) {
   const wind = cfg.windBase + cfg.windOscAmp * Math.sin(t * Math.PI * 2 * cfg.windOscFreq);
 
   for (const leaf of leaves) {
+    // Skip updates/draws while leaf is in staggered respawn delay
+    if (leaf.sleep && leaf.sleep > 0) {
+      leaf.sleep -= dt;
+      continue;
+    }
+
     // Forces
     let ax = wind * 0.15;      // convert wind drift to acceleration
     let ay = cfg.gravity;
@@ -216,11 +224,14 @@ function tick(now) {
     // Wrap/respawn when off‑screen
     const m = cfg.respawnMargin;
     if (leaf.y > innerHeight + m) {
+      // Staggered respawn to avoid bursts
+      leaf.sleep = rand(0.2, 10.5);
       leaf.y = -m;
       leaf.x = rand(-m, innerWidth + m);
       leaf.vy = rand(10, 40);
       leaf.vx = rand(-10, 10);
       leaf.spin = rand(-1.2, 1.2);
+      continue;
     }
     if (leaf.x < -m) leaf.x = innerWidth + m;
     if (leaf.x > innerWidth + m) leaf.x = -m;
