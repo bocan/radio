@@ -31,24 +31,20 @@ const STATIONS = [
   },
 
   {
-    id: 'radioxclassicrock',
-    name: 'Radio X Classic Rock',
-    location: 'United Kingdom',
-   description: "<a href='https://www.radiox.co.uk/classic-rock/' target=_blank>Radio X</a> Classic Rock is a national digital radio station in the UK, launched in February 2023. It's dedicated to the greatest rock music of all time!",
+    id: 'ambientsleepingpill',
+    name: 'Ambiant Sleeping Pill',
+    location: 'South Plainfield, New Jersey',
+   description: "<a href='https://ambientsleepingpill.com' target=_blank>Ambient Sleeping Pill</a> An internet radio station streaming music for Sleeping, taking Naps, and other more wakeful Moments; Tranquil, Deep, Serene; no breaks, no ads, no beats, no new-age cheese.",
     streams: [
-      { url: 'https://media-ice.musicradio.com/RadioXClassicRockMP3', type: 'audio/mpeg' }
+      { url: 'http://radio.stereoscenic.com/asp-h', type: 'audio/mpeg' }
     ],
-    metadataUrl: 'https://scraper2.onlineradiobox.com/uk.xclassicrock?l=0',
+    metadataUrl: 'https://chris.funderburg.me/proxy/ambient',
     parseNowPlaying: (data) => {
+      const s = data?.streams?.[3];
       if (!data) return null;
-      const artist = (data.iArtist || '').trim();
-      const track  = (data.iName   || data.title || '').trim();
-      return (artist && track) ? `${artist} — ${track}` : (data.title || null);
+      return (s.songtitle);
     }
   },
-
-
-
 
   {
     id: 'nightride',
