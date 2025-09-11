@@ -1,0 +1,167 @@
+/*
+MIT License
+
+Copyright (c) 2025 Chris Funderburg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+/* THEME VARIABLES
+   - Default: light (no data-theme attr)
+   - If system is dark, @media block below applies
+   - If user overrides, [data-theme="dark"/"light"] wins
+*/
+/* THEME VARIABLES */
+:root {
+  /* Light (default) */
+  --bg: #f7f9fc;
+  --bg-2: #eef2f7;
+  --card: #ffffff;
+  --card-hover: #f2f5fa;
+  --text: #0b1220;
+  --muted: #4b5565;
+  --accent: #2563eb;
+  --accent-2: #059669;
+  --danger: #dc2626;
+
+  --title: #0b1220;
+  --player-bg: rgba(250,252,255,.75);
+  --player-border: rgba(0,0,0,.08);
+}
+
+/* System prefers dark: use dark palette unless user overrides with data-theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0f14;
+    --bg-2: #0d121a;
+    --card: #111823;
+    --card-hover: #162032;
+    --text: #e7edf6;
+    --muted: #a8b3c6;
+    --accent: #5cc8ff;
+    --accent-2: #4ade80;
+    --danger: #ef4444;
+
+    --title: #ffffff;
+    --player-bg: rgba(8,12,18,.85);
+    --player-border: rgba(255,255,255,.08);
+  }
+}
+
+/* Explicit user overrides from your toggle */
+:root[data-theme="light"] {
+  --bg: #f7f9fc; --bg-2: #eef2f7;
+  --card:#fff; --card-hover:#f2f5fa; --text:#0b1220; --muted:#4b5565;
+  --accent:#2563eb; --accent-2:#059669; --danger:#dc2626;
+  --title:#0b1220; --player-bg: rgba(250,252,255,.75); --player-border: rgba(0,0,0,.08);
+}
+:root[data-theme="dark"] {
+  --bg:#0b0f14; --bg-2:#0d121a;
+  --card:#111823; --card-hover:#162032; --text:#e7edf6; --muted:#a8b3c6;
+  --accent:#5cc8ff; --accent-2:#4ade80; --danger:#ef4444;
+  --title:#ffffff; --player-bg: rgba(8,12,18,.85); --player-border: rgba(255,255,255,.08);
+}
+
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  color:var(--text);
+  /* use two colors, not calc() */
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 30%, var(--bg) 100%);
+}
+.container{max-width:1100px; margin:0 auto; padding:24px 20px 120px}
+header{display:flex; align-items:center; gap:12px; margin-bottom:18px}
+.logo{width:36px; height:36px; border-radius:10px; background:radial-gradient(circle at 30% 30%, #6ee7ff, #4f46e5); box-shadow:0 6px 22px rgba(76, 201, 255, .25)}
+h1{font-size:1.4rem; margin:0}
+
+/* Grid of station cards */
+.grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:14px}
+
+.card{
+  background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:16px;
+  padding:14px; display:flex; flex-direction:column; gap:8px; cursor:pointer; position:relative;
+  transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
+}
+.card:hover{background:var(--card-hover); transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.card.active{outline:2px solid var(--accent);}
+.badge{font-size:.72rem; color:var(--muted); opacity:.9}
+.title{ font-weight:700; color: var(--title); }
+.desc{color:var(--muted); font-size:.9rem}
+
+/* Sticky Player uses vars so it flips with theme */
+.player{
+  position:fixed; left:0; right:0; bottom:0; backdrop-filter:saturate(1.2) blur(8px);
+  background: var(--player-bg);
+  border-top: 1px solid var(--player-border);
+}
+.player-inner{max-width:1100px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; gap:14px}
+.np{min-width:0; display:flex; flex-direction:column; gap:2px}
+.np .label{font-size:.72rem; color:var(--muted)}
+.np .value{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+button.icon{
+  border:0; background:#0f1622; color:var(--text); width:40px; height:40px; border-radius:12px;
+  display:grid; place-items:center; cursor:pointer; transition:transform .08s ease, background .15s ease;
+  border:1px solid rgba(255,255,255,.06);
+}
+button.icon:hover{background:#132033}
+button.icon:active{transform:scale(.98)}
+
+.vol-wrap{display:flex; align-items:center; gap:8px; margin-left:auto}
+input[type="range"]{width:160px}
+
+.hint{margin-top:10px; color:var(--muted); font-size:.9rem}
+a{color:var(--accent)}
+
+@media (max-width:720px){
+  .container{padding-bottom:150px}
+  input[type="range"]{width:110px}
+  .np .value{max-width:40vw}
+}
+
+/* Small, discrete theme toggle button */
+.theme-toggle {
+  width: 36px; height: 36px; border-radius: 10px;
+  display:grid; place-items:center; margin-left:auto;
+}
+
+/* Softer icon color by default; darken on hover */
+button.icon { color: var(--muted); }
+button.icon:hover { color: var(--text); }
+
+/* Player-specific (covers Play/Pause) */
+.player .icon { color: var(--muted); }
+.player .icon:hover { color: var(--text); }
+
+/* Theme toggle should match */
+.theme-toggle { color: var(--muted); }
+.theme-toggle:hover { color: var(--text); }
+
+/* If you want different tones per theme, you can nudge them: */
+:root[data-theme="light"] .player .icon,
+:root[data-theme="light"] .theme-toggle { color: #a8b3c6; }   /* slate-600-ish */
+:root[data-theme="light"] .player .icon:hover,
+:root[data-theme="light"] .theme-toggle:hover { color: #e7edf6; } /* your --text */
+
+/* In dark mode you already look good, but for symmetry: */
+:root[data-theme="dark"] .player .icon,
+:root[data-theme="dark"] .theme-toggle { color: #a8b3c6; }    /* your --muted */
+:root[data-theme="dark"] .player .icon:hover,
+:root[data-theme="dark"] .theme-toggle:hover { color: #e7edf6; } /* your --text */
