@@ -1,3 +1,34 @@
+
+/* HLS HELPERS */
+// Try to turn ID3 bytes into text; fall back to hex
+function id3ToString(bytes){
+  try { return new TextDecoder().decode(bytes).trim(); }
+  catch { return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join(' '); }
+}
+
+// Very simple "Artist - Title" parser; tweak as needed
+function parseArtistTitle(text){
+  const m = text.match(/^\s*([^–-]+?)\s*[-–]\s*(.+?)\s*$/); // handles - or –
+  if (!m) return null;
+  return { artist: m[1].trim(), title: m[2].trim() };
+}
+
+// Update your UI if we got something meaningful
+function maybeUpdateFromText(text){
+  if (!text) return;
+  const at = parseArtistTitle(text);
+  if (at) {
+    els.nowPlaying.textContent = `${at.artist} — ${at.title}`;
+  } else {
+    // comment this out after testing; it helps discover what your stream sends
+    console.log('ID3 text (unparsed):', text);
+  }
+}
+
+
+
+/* RADIO CAROLINE STUFF */
+
 /**
  * Fetch JSON from a URL.
  * @param {string} url - The endpoint to request.

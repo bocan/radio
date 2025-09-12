@@ -45,6 +45,7 @@ SOFTWARE.
   <link rel="manifest" href="site.webmanifest">
 </head>
 <body>
+  <main>
 
   <!-- Falling Leaves -->
   <canvas id="autumn-leaves" aria-hidden="true"></canvas>
@@ -90,7 +91,7 @@ SOFTWARE.
 
       <div class="vol-wrap" title="Volume">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
-        <input id="volume" type="range" min="0" max="1" step="0.01" />
+        <input aria-label="Volume" id="volume" type="range" min="0" max="1" step="0.01" />
       </div>
     </div>
   </div>
@@ -105,5 +106,6 @@ SOFTWARE.
   <!-- Falling Leaves -->
   <script type="module" src="autumn-leaves.js"></script>
 
+  </main>
 </body>
 </html>

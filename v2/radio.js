@@ -192,16 +192,6 @@ const STATIONS = [
       { url: 'https://stream.radiocaroline.net/rc128/;stream.mp3', type: 'audio/mpeg' }
     ],
     metadataUrl: 'https://chris.funderburg.me/proxy/caroline',
-//    parseNowPlaying: async (data) => {
-//      const show = getCurrentShowName(data);
-//      const now = await fetchJson('https://chris.funderburg.me/proxy/caroline2'); // track JSON
-//      const song   = now.songs[0] || {};
-//      const artist = (song.artist || 'Unknown Artist').trim();
-//     const track  = (song.title  || 'Unknown Title').trim();
-
-//      return `${show} — ${artist} — ${track}`;
-
-//    }
     parseNowPlaying: (scheduleJson) => {
       // 1) Compute the show synchronously
       const show = getCurrentShowName(scheduleJson);
@@ -221,11 +211,39 @@ const STATIONS = [
       // 3) Return an immediate placeholder so something shows right away
       return show; // e.g., "The Mellow Show …" until artist/track arrive
     }
+  },
 
-  }
+  {
+    id: 'kboo',
+    name: 'KBOO FM',
+    location: 'Portland, Oregon',
+    description: "<a href='https://kboo.fm/' target=_blank>KBOO FM</a> KBOO is an independent, member-supported, non-commercial, volunteer-powered community radio station. KBOO embodies equitable social change, shares knowledge, and fosters creativity by delivering locally rooted and diverse music, culture, news, and opinions, with a commitment to the voices of oppressed and underserved communities..",
+    streams: [
+      { url: 'https://live.kboo.fm:8443/high', type: 'audio/mpeg' }
+    ],
+    metadataUrl: 'https://chris.funderburg.me/proxy/kboo',
+    parseNowPlaying: (data) => {
+      // .tracks.current.metadata.track_title'
+      const show_title = (data[0].title || '').trim();;
+      return `KBOO - ${show_title}`;
+    }
+  },
 
-
-
+  {
+    id: 'ctuk',
+    name: 'CTUK',
+    location: 'Montreal, Canada',
+    description: "<a href='https://ckut.ca' target=_blank>CTUK</a> .CKUT is a non-profit, campus/community radio station based at McGill University in Montreal. CKUT provides alternative music, news and spoken word programming to the city of Montreal, surrounding areas, and around the world 24 hours a day, 365 days a year.",
+    streams: [
+      { url: 'https://delray.ckut.ca:8001/903fm-192-stereo', type: 'audio/mpeg' }
+    ],
+    metadataUrl: 'https://chris.funderburg.me/proxy/ckut',
+    parseNowPlaying: (data) => {
+      // .tracks.current.metadata.track_title'
+      const show = (data?.program?.title_html || '').trim();;
+      return `CTUK - ${show}`;
+    }
+  },
 ];
 
 // --- App State ---
@@ -307,44 +325,62 @@ async function startStation(station){
   const isHls = /m3u8|application\/(x-)?mpegurl|application\/vnd\.apple\.mpegurl/i.test(source.type || source.url);
 
   if (isHls) {
-    // Safari can sometimes play HLS natively (usually <video>, sometimes <audio> too).
+    // Safari sometimes plays HLS natively (often <video>, sometimes <audio> too).
     if (els.audio.canPlayType('application/vnd.apple.mpegurl')) {
       els.audio.src = source.url;
+
+      // --- Safari metadata (ID3 via textTracks) ---------------------------
+      // Tracks may appear after load; listen for additions.
+      const onTrack = (track) => {
+        try { track.mode = 'hidden'; } catch {}
+        track.addEventListener('cuechange', () => {
+          for (const cue of track.activeCues || []) {
+            // Many streams put JSON or "Artist - Title" in cue.text
+            if (cue && typeof cue.text === 'string') {
+              maybeUpdateFromText(cue.text);
+            }
+          }
+        });
+      };
+
+    // Already-present tracks
+      for (let i = 0; i < els.audio.textTracks.length; i++) onTrack(els.audio.textTracks[i]);
+      // Newly-added tracks
+      els.audio.textTracks.addEventListener?.('addtrack', (e) => onTrack(e.track));
+
     } else if (window.Hls && Hls.isSupported()) {
       // Use hls.js for Chrome/Firefox/Edge
       hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
-        // If the master has audio-only renditions, hls.js will expose them in audioTracks
-        // You can also cap to lowest level to save bandwidth:
-        // capLevelToPlayerSize: true,
       });
       hls.loadSource(source.url);
       hls.attachMedia(els.audio);
 
+      // --- hls.js ID3 metadata from TS/fMP4 fragments ---------------------
+      hls.on(Hls.Events.FRAG_PARSING_METADATA, (_evt, data) => {
+        // data.samples: [{ pts, dts, data: Uint8Array }, ...]
+        for (const s of data.samples) {
+          const text = id3ToString(s.data);
+          maybeUpdateFromText(text);
+        }
+      });
+
       hls.on(Hls.Events.ERROR, (_evt, data) => {
         if (data?.fatal) {
           switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              hls.startLoad();
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              hls.recoverMediaError();
-              break;
-            default:
-              try { hls.destroy(); } catch {}
-              hls = null;
+            case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
+            case Hls.ErrorTypes.MEDIA_ERROR:   hls.recoverMediaError(); break;
+            default: try { hls.destroy(); } catch {} hls = null;
           }
         }
       });
 
       // Optional: pick first audio-only track if present
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        // If alternate audio tracks exist, pick the first (or English)
         const a = hls.audioTracks || [];
         const eng = a.find(t => /en/i.test(t.name || t.lang || ''));
         if (eng) hls.audioTrack = eng.id;
-        // Auto-play (user gesture likely present because you clicked a card)
         els.audio.play().catch(()=>{});
       });
     } else {
