@@ -36,7 +36,7 @@ const STATIONS = [
     location: 'South Plainfield, New Jersey',
    description: "<a href='https://ambientsleepingpill.com' target=_blank>Ambient Sleeping Pill</a> An internet radio station streaming music for Sleeping, taking Naps, and other more wakeful Moments; Tranquil, Deep, Serene; no breaks, no ads, no beats, no new-age cheese.",
     streams: [
-      { url: 'http://radio.stereoscenic.com/asp-h', type: 'audio/mpeg' }
+      { url: 'https://radio.stereoscenic.com/asp-h', type: 'audio/mpeg' }
     ],
     metadataUrl: 'https://chris.funderburg.me/proxy/ambient',
     parseNowPlaying: (data) => {
@@ -153,7 +153,101 @@ const STATIONS = [
       if (artist && title) return `${artist} — ${title}`;
       return text.trim() || null; // fallback if format is odd
     }
-  }
+  },
+
+  {
+    id: 'kioskradio',
+    name: 'Kiosk Radio',
+    location: 'Brussels, Belgium',
+    description: "<a href='https://kioskradio.com' target=_blank>Kiosk Radio</a> is a community web radio station and streaming platform broadcasting 24/7 from a wooden kiosk in the heart of Brussels’ historic 'Parc Royal'. Since 2017, it’s been a place where music drifts between genres without boundaries or rules. This is a European twin of <i>The Lot Radio</i> above.",
+    streams: [
+      { url: 'https://kioskradiobxl.out.airtime.pro/kioskradiobxl_b', type: 'audio/aac' }
+    ],
+    metadataUrl: 'https://chris.funderburg.me/proxy/kiosk',
+    parseNowPlaying: (data) => {
+      // .tracks.current.metadata.track_title'                                 
+      const show = data?.shows?.current;
+      const track = data?.tracks?.current.metadata;
+
+      const name = (show?.name || '').trim();
+      const track_title  = (track?.track_title  || '').trim();
+
+      if (track_title === '') {
+        return `Kiosk Raio - ${name} - Livestreaming`;
+      } else {
+        return `${name} : ${track_title}`;
+      }
+    }
+
+  },
+
+  {
+    id: 'caroline',
+    name: 'Radio Caroline',
+    location: 'United Kingdom',
+    description: "<a href='https://radiocaroline.co.uk' target=_blank>Radio Caroline</a> is a legendary UK station that began in 1964 as an offshore “pirate” broadcaster, challenging the BBC’s monopoly by playing pop and rock that mainstream radio ignored. It transmitted from ships in the North Sea and became a cultural icon. Today, Caroline continues online, 648 AM, and on DAB, keeping alive its heritage of free-spirited, independent broadcasting.",
+    streams: [
+      { url: 'https://stream.radiocaroline.net/rc128/;stream.mp3', type: 'audio/mpeg' }
+    ],
+    metadataUrl: 'https://chris.funderburg.me/proxy/caroline',
+    parseNowPlaying: (scheduleJson) => {
+      // 1) Compute the show synchronously
+      const show = getCurrentShowName(scheduleJson);
+
+      // 2) Kick off the second fetch and update the UI when it arrives
+      fetchJson('https://chris.funderburg.me/proxy/caroline2')
+        .then(now => {
+          const song   = now.songs?.[0] || {};
+          const artist = (song.artist || 'Unknown Artist').trim();
+          const track  = (song.title  || 'Unknown Title').trim();
+    
+          // <-- do the actual DOM update here
+          els.nowPlaying.textContent = `${show} — ${artist} — ${track}`;
+        })
+        .catch(err => console.warn('track fetch failed', err));
+
+      // 3) Return an immediate placeholder so something shows right away
+      return show; // e.g., "The Mellow Show …" until artist/track arrive
+    }
+  },
+
+  {
+    id: 'kboo',
+    name: 'KBOO FM',
+    location: 'Portland, Oregon',
+    description: "<a href='https://kboo.fm/' target=_blank>KBOO FM</a> KBOO is an independent, member-supported, non-commercial, volunteer-powered community radio station. KBOO embodies equitable social change, shares knowledge, and fosters creativity by delivering locally rooted and diverse music, culture, news, and opinions, with a commitment to the voices of oppressed and underserved communities..",
+    streams: [
+      { url: 'https://live.kboo.fm:8443/high', type: 'audio/mpeg' }
+    ],
+    metadataUrl: 'https://chris.funderburg.me/proxy/kboo',
+    parseNowPlaying: (data) => {
+      // .tracks.current.metadata.track_title'
+      const show_title = (data[0].title || '').trim();;
+      return `KBOO - ${show_title}`;
+    }
+  },
+
+  {
+    id: 'ctuk',
+    name: 'CTUK',
+    location: 'Montreal, Canada',
+    description: "<a href='https://ckut.ca' target=_blank>CTUK</a> .CKUT is a non-profit, campus/community radio station based at McGill University in Montreal. CKUT provides alternative music, news and spoken word programming to the city of Montreal, surrounding areas, and around the world 24 hours a day, 365 days a year.",
+    streams: [
+      { url: 'https://delray.ckut.ca:8001/903fm-192-stereo', type: 'audio/mpeg' }
+    ],
+    metadataUrl: 'https://chris.funderburg.me/proxy/ckut',
+    parseNowPlaying: (data) => {
+      // .tracks.current.metadata.track_title'
+      const show = (data?.program?.title_html || '').trim();
+      const extra = (data?.program?.description_html || '').trim();
+
+      return {
+         text: show ? `CTUK — ${show}` : 'CTUK',
+         descriptionHtml: extra || ''   // this will show inside the ℹ︎ panel
+       };
+
+    }
+  },
 ];
 
 // --- App State ---
@@ -164,7 +258,10 @@ const els = {
   icoPlay: document.getElementById('icoPlay'),
   icoPause: document.getElementById('icoPause'),
   volume: document.getElementById('volume'),
-  nowPlaying: document.getElementById('nowPlaying')
+  nowPlaying: document.getElementById('nowPlaying'),
+  npDetails: document.getElementById('npDetails'),
+  npRich: document.getElementById('npRich'),
+  npArt: document.getElementById('npArt'),
 };
 
 let currentStation = null;
@@ -176,6 +273,97 @@ els.volume.value = savedVol !== null ? savedVol : 0.8;
 els.audio.volume = parseFloat(els.volume.value);
 
 const savedStationId = localStorage.getItem('ir_last_station');
+
+// Minimal sanitizer: strips <script> and on* handlers, keeps common tags.
+// For fully untrusted sources, consider DOMPurify. This is intentionally conservative.
+function sanitizeHtml(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  // remove <script>, <style>, <iframe>, <object>
+  tmp.querySelectorAll('script,style,iframe,object').forEach(n => n.remove());
+  // strip on* attributes
+  tmp.querySelectorAll('*').forEach(el => {
+    [...el.attributes].forEach(a => { if (/^on/i.test(a.name)) el.removeAttribute(a.name); });
+  });
+  return tmp.innerHTML;
+}
+
+/**
+ * Accepts either:
+ *  - string (simple "Artist — Title"), OR
+ *  - object: {
+ *      text?: string,            // primary line override
+ *      artist?: string, title?: string, show?: string, station?: string,
+ *      descriptionHtml?: string, // rich HTML for the info panel
+ *      extraHtml?: string        // alias, if you prefer
+ *    }
+ */
+function updateNowPlaying(result, station) {
+  let primary = '';
+  let infoHtml = '';
+  // artworkUrl handling: if property exists, we update artwork; if absent, we leave it as-is
+  let artFromResult;  // undefined => no change, '' => clear, 'http...' => set
+
+  if (typeof result === 'string') {
+    primary = result.trim();
+    artFromResult = ''; // strings don't carry art => clear if you prefer; or set to undefined to leave as-is
+  } else if (result && typeof result === 'object') {
+    const artist = (result.artist || '').trim();
+    const title  = (result.title  || '').trim();
+    const show   = (result.show   || '').trim();
+    const stationName = (result.station || station?.name || '').trim();
+
+    // figure best primary line
+    if (result.text && result.text.trim()) {
+      primary = result.text.trim();
+    } else if (show && artist && title) {
+      primary = `${show} - ${artist} — ${title}`;
+    } else if (artist && title) {
+      primary = `${artist} — ${title}`;
+    } else if (title) {
+      primary = title;
+    } else if (show) {
+      primary = show;
+    } else {
+      primary = stationName || 'Live';
+    }
+
+    const rawInfo = result.descriptionHtml || result.extraHtml || '';
+    if (rawInfo && rawInfo.trim()) {
+      infoHtml = sanitizeHtml(rawInfo);
+    }
+
+    if ('artworkUrl' in result) artFromResult = (result.artworkUrl || '').trim();
+  }
+
+  // fallback if nothing
+  if (!primary) primary = station?.name || 'Live';
+
+  // update UI
+  els.nowPlaying.textContent = primary;
+
+  if (infoHtml) {
+    els.npRich.innerHTML = infoHtml;
+    els.npDetails.hidden = false;
+  } else {
+    els.npRich.textContent = '';
+    els.npDetails.hidden = true;
+    // also ensure the details collapses if it was open
+    try { els.npDetails.open = false; } catch {}
+  }
+
+  // Artwork: only change if the parser explicitly provided (or you chose to clear on string)
+  if (artFromResult !== undefined) setArtwork(artFromResult || null);
+
+  // Media Session (keep as you had it)
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: primary,
+      artist: station?.name || '',
+      album: station?.location || 'Live Radio',
+    });
+  }
+}
 
 // Render station cards
 function renderStations(){
@@ -204,11 +392,28 @@ function markActive(){
   }
 }
 
+let currentArtworkUrl = '';
+
+function setArtwork(url){
+  if (url && typeof url === 'string') {
+    els.npArt.src = url;
+    els.npArt.hidden = false;
+    els.npArt.alt = 'Cover art';
+    currentArtworkUrl = url;
+  } else {
+    els.npArt.hidden = true;
+    els.npArt.removeAttribute('src');
+    els.npArt.alt = '';
+    currentArtworkUrl = '';
+  }
+}
+
 async function startStation(station){
 
   currentStation = station;
   localStorage.setItem('ir_last_station', station.id);
   markActive();
+  setArtwork(null); // clear art when switching stations
 
   // Stop metadata polling
   if (metaTimer) { clearInterval(metaTimer); metaTimer = null; }
@@ -235,44 +440,62 @@ async function startStation(station){
   const isHls = /m3u8|application\/(x-)?mpegurl|application\/vnd\.apple\.mpegurl/i.test(source.type || source.url);
 
   if (isHls) {
-    // Safari can sometimes play HLS natively (usually <video>, sometimes <audio> too).
+    // Safari sometimes plays HLS natively (often <video>, sometimes <audio> too).
     if (els.audio.canPlayType('application/vnd.apple.mpegurl')) {
       els.audio.src = source.url;
+
+      // --- Safari metadata (ID3 via textTracks) ---------------------------
+      // Tracks may appear after load; listen for additions.
+      const onTrack = (track) => {
+        try { track.mode = 'hidden'; } catch {}
+        track.addEventListener('cuechange', () => {
+          for (const cue of track.activeCues || []) {
+            // Many streams put JSON or "Artist - Title" in cue.text
+            if (cue && typeof cue.text === 'string') {
+              maybeUpdateFromText(cue.text);
+            }
+          }
+        });
+      };
+
+    // Already-present tracks
+      for (let i = 0; i < els.audio.textTracks.length; i++) onTrack(els.audio.textTracks[i]);
+      // Newly-added tracks
+      els.audio.textTracks.addEventListener?.('addtrack', (e) => onTrack(e.track));
+
     } else if (window.Hls && Hls.isSupported()) {
       // Use hls.js for Chrome/Firefox/Edge
       hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
-        // If the master has audio-only renditions, hls.js will expose them in audioTracks
-        // You can also cap to lowest level to save bandwidth:
-        // capLevelToPlayerSize: true,
       });
       hls.loadSource(source.url);
       hls.attachMedia(els.audio);
 
+      // --- hls.js ID3 metadata from TS/fMP4 fragments ---------------------
+      hls.on(Hls.Events.FRAG_PARSING_METADATA, (_evt, data) => {
+        // data.samples: [{ pts, dts, data: Uint8Array }, ...]
+        for (const s of data.samples) {
+          const text = id3ToString(s.data);
+          maybeUpdateFromText(text);
+        }
+      });
+
       hls.on(Hls.Events.ERROR, (_evt, data) => {
         if (data?.fatal) {
           switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              hls.startLoad();
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              hls.recoverMediaError();
-              break;
-            default:
-              try { hls.destroy(); } catch {}
-              hls = null;
+            case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
+            case Hls.ErrorTypes.MEDIA_ERROR:   hls.recoverMediaError(); break;
+            default: try { hls.destroy(); } catch {} hls = null;
           }
         }
       });
 
       // Optional: pick first audio-only track if present
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        // If alternate audio tracks exist, pick the first (or English)
         const a = hls.audioTracks || [];
         const eng = a.find(t => /en/i.test(t.name || t.lang || ''));
         if (eng) hls.audioTrack = eng.id;
-        // Auto-play (user gesture likely present because you clicked a card)
         els.audio.play().catch(()=>{});
       });
     } else {
@@ -289,7 +512,7 @@ async function startStation(station){
   setPlayIcon(true);
 
   // UI text
-  els.nowPlaying.textContent = `${station.name}`;
+  updateNowPlaying(station.name, station);
 
   // Media Session
   if ('mediaSession' in navigator) {
@@ -314,14 +537,7 @@ async function startStation(station){
           if (!item) return;
           if (item.station && item.station.toLowerCase() !== 'nightride') return; // keep only the nightride line
           const title = station.parseNowPlaying ? station.parseNowPlaying(item) : null;
-          if (title) {
-            els.nowPlaying.textContent = title;
-            if ('mediaSession' in navigator) {
-              navigator.mediaSession.metadata = new MediaMetadata({
-                title, artist: station.name, album: station.location
-              });
-            }
-          }
+          if (title != null) updateNowPlaying(title, station);
         } catch (_) {}
       };
       sse.onerror = () => { /* network hiccup; browser auto-reconnects */ };
@@ -343,16 +559,8 @@ async function startStation(station){
         // Let each station's parser handle its own shape
         const title = station.parseNowPlaying ? station.parseNowPlaying(payload) : null;
 
-        if (title) {
-          els.nowPlaying.textContent = title;
-          if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-              title,
-              artist: station.name,
-              album: station.location
-            });
-          }
-        }
+        if (title != null) updateNowPlaying(title, station);
+
       } catch (e) {
         // quietly ignore CORS/HTTP/parse issues
       }

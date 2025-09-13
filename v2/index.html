@@ -26,13 +26,13 @@ SOFTWARE.
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="A hand-picked collection of 12 community radio streams I like to listen to in the dead of the night.">
-  <title>Chris's Funderburg's 12 Radio Stations</title>
+  <meta name="description" content="The best community radio streams for late nights, working, or just getting away from commercial radio.">
+  <title>The Liminal Dial</title>
   <link rel="stylesheet" href="radio.css">
-  <meta name="keywords" content="radio, stations, nighttime, stream, streaming, liminal,  eerie, community radio">
+  <meta name="keywords" content="radio, stations, nighttime, stream, streaming, liminal, eerie, community radio">
   <meta name="author" content="Chris Funderburg">
-  <meta property="og:title" content="12 Radio Stations" />
-  <meta property="og:description" content="A hand-picked collection of 12 radio streams I like to listen to in the dead of the night" />
+  <meta property="og:title" content="The Liminal Dial" />
+  <meta property="og:description" content="The best community radio streams for late nights, working, or just getting away from commercial radio." />
   <meta property="og:image" content="https://chris.funderburg.me/radio/preview.png" />
   <meta property="og:url" content="https://chris.funderburg.me/radio" />
 
@@ -53,7 +53,7 @@ SOFTWARE.
   <div class="container">
     <header>
       <div class="logo" aria-hidden="true"></div>
-      <h1>12 Radio Stations</h1>
+      <h1>The Liminal Dial - 12 Community Radio Streams for Focus, Sleeplessness, and Drift</h1>
         <!-- Theme toggle button -->
   <button class="icon theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
     <!-- Sun/Moon combo (we’ll swap via JS) -->
@@ -65,7 +65,7 @@ SOFTWARE.
     </svg>
   </button>
     </header>
-    <p class="hint">A hand-picked collection of 12 radio streams for listening in the dead of the night.<br />They've all got this eerie, liminal, <a href="https://www.welcometonightvale.com/" target=_blank>nightvale</a> aesthetic. Like maybe they're broadcasting from a 1-person pocket universe, and you're the only listener.</p>
+    <p class="hint">Welcome to my hand-picked collection of 12 radio streams. They have a wild assortment of music genres, news, and talk,  but like most community and internet stations they share an eerie, liminal, <a href="https://www.welcometonightvale.com/" target=_blank>Nightvale</a>-like aesthetic. Like maybe they're broadcasting from a 1-person pocket universe, and you're the only listener.</p><p><br /></p>
 
     <div id="stations" class="grid" role="list" aria-label="Station list"></div>
 
@@ -78,18 +78,26 @@ SOFTWARE.
   <div class="player" role="region" aria-label="Player">
     <div class="player-inner">
       <button class="icon" id="btnPlay" aria-label="Play/Pause" title="Play/Pause">
-        <!-- Play icon -->
+        <!-- Play/Pause svgs… -->
         <svg id="icoPlay" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        <!-- Pause icon (hidden by default) -->
         <svg id="icoPause" style="display:none" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
       </button>
+
+      <img id="npArt" class="np-art" alt="" hidden />
 
       <div class="np">
         <div class="label">Now Playing</div>
         <div class="value" id="nowPlaying">—</div>
       </div>
 
+      <!-- NEW: optional rich info -->
+      <details id="npDetails" class="np-details" hidden>
+        <summary aria-label="More info">ℹ︎ Info</summary>
+        <div id="npRich"></div>
+      </details>
+
       <div class="vol-wrap" title="Volume">
+        <!-- existing volume stuff -->
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
         <input aria-label="Volume" id="volume" type="range" min="0" max="1" step="0.01" />
       </div>

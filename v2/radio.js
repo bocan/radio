@@ -173,11 +173,9 @@ const STATIONS = [
       const track_title  = (track?.track_title  || '').trim();
 
       if (track_title === '') {
-	      console.error("livestream");
         return `Kiosk Raio - ${name} - Livestreaming`;
       } else {
-	      console.error("not livestream");
-        return `${name} - ${track_title}`;
+        return `${name} : ${track_title}`;
       }
     }
 
@@ -240,8 +238,14 @@ const STATIONS = [
     metadataUrl: 'https://chris.funderburg.me/proxy/ckut',
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
-      const show = (data?.program?.title_html || '').trim();;
-      return `CTUK - ${show}`;
+      const show = (data?.program?.title_html || '').trim();
+      const extra = (data?.program?.description_html || '').trim();
+
+      return {
+         text: show ? `CTUK — ${show}` : 'CTUK',
+         descriptionHtml: extra || ''   // this will show inside the ℹ︎ panel
+       };
+
     }
   },
 ];
@@ -254,7 +258,10 @@ const els = {
   icoPlay: document.getElementById('icoPlay'),
   icoPause: document.getElementById('icoPause'),
   volume: document.getElementById('volume'),
-  nowPlaying: document.getElementById('nowPlaying')
+  nowPlaying: document.getElementById('nowPlaying'),
+  npDetails: document.getElementById('npDetails'),
+  npRich: document.getElementById('npRich'),
+  npArt: document.getElementById('npArt'),
 };
 
 let currentStation = null;
@@ -266,6 +273,97 @@ els.volume.value = savedVol !== null ? savedVol : 0.8;
 els.audio.volume = parseFloat(els.volume.value);
 
 const savedStationId = localStorage.getItem('ir_last_station');
+
+// Minimal sanitizer: strips <script> and on* handlers, keeps common tags.
+// For fully untrusted sources, consider DOMPurify. This is intentionally conservative.
+function sanitizeHtml(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  // remove <script>, <style>, <iframe>, <object>
+  tmp.querySelectorAll('script,style,iframe,object').forEach(n => n.remove());
+  // strip on* attributes
+  tmp.querySelectorAll('*').forEach(el => {
+    [...el.attributes].forEach(a => { if (/^on/i.test(a.name)) el.removeAttribute(a.name); });
+  });
+  return tmp.innerHTML;
+}
+
+/**
+ * Accepts either:
+ *  - string (simple "Artist — Title"), OR
+ *  - object: {
+ *      text?: string,            // primary line override
+ *      artist?: string, title?: string, show?: string, station?: string,
+ *      descriptionHtml?: string, // rich HTML for the info panel
+ *      extraHtml?: string        // alias, if you prefer
+ *    }
+ */
+function updateNowPlaying(result, station) {
+  let primary = '';
+  let infoHtml = '';
+  // artworkUrl handling: if property exists, we update artwork; if absent, we leave it as-is
+  let artFromResult;  // undefined => no change, '' => clear, 'http...' => set
+
+  if (typeof result === 'string') {
+    primary = result.trim();
+    artFromResult = ''; // strings don't carry art => clear if you prefer; or set to undefined to leave as-is
+  } else if (result && typeof result === 'object') {
+    const artist = (result.artist || '').trim();
+    const title  = (result.title  || '').trim();
+    const show   = (result.show   || '').trim();
+    const stationName = (result.station || station?.name || '').trim();
+
+    // figure best primary line
+    if (result.text && result.text.trim()) {
+      primary = result.text.trim();
+    } else if (show && artist && title) {
+      primary = `${show} - ${artist} — ${title}`;
+    } else if (artist && title) {
+      primary = `${artist} — ${title}`;
+    } else if (title) {
+      primary = title;
+    } else if (show) {
+      primary = show;
+    } else {
+      primary = stationName || 'Live';
+    }
+
+    const rawInfo = result.descriptionHtml || result.extraHtml || '';
+    if (rawInfo && rawInfo.trim()) {
+      infoHtml = sanitizeHtml(rawInfo);
+    }
+
+    if ('artworkUrl' in result) artFromResult = (result.artworkUrl || '').trim();
+  }
+
+  // fallback if nothing
+  if (!primary) primary = station?.name || 'Live';
+
+  // update UI
+  els.nowPlaying.textContent = primary;
+
+  if (infoHtml) {
+    els.npRich.innerHTML = infoHtml;
+    els.npDetails.hidden = false;
+  } else {
+    els.npRich.textContent = '';
+    els.npDetails.hidden = true;
+    // also ensure the details collapses if it was open
+    try { els.npDetails.open = false; } catch {}
+  }
+
+  // Artwork: only change if the parser explicitly provided (or you chose to clear on string)
+  if (artFromResult !== undefined) setArtwork(artFromResult || null);
+
+  // Media Session (keep as you had it)
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: primary,
+      artist: station?.name || '',
+      album: station?.location || 'Live Radio',
+    });
+  }
+}
 
 // Render station cards
 function renderStations(){
@@ -294,11 +392,28 @@ function markActive(){
   }
 }
 
+let currentArtworkUrl = '';
+
+function setArtwork(url){
+  if (url && typeof url === 'string') {
+    els.npArt.src = url;
+    els.npArt.hidden = false;
+    els.npArt.alt = 'Cover art';
+    currentArtworkUrl = url;
+  } else {
+    els.npArt.hidden = true;
+    els.npArt.removeAttribute('src');
+    els.npArt.alt = '';
+    currentArtworkUrl = '';
+  }
+}
+
 async function startStation(station){
 
   currentStation = station;
   localStorage.setItem('ir_last_station', station.id);
   markActive();
+  setArtwork(null); // clear art when switching stations
 
   // Stop metadata polling
   if (metaTimer) { clearInterval(metaTimer); metaTimer = null; }
@@ -397,7 +512,7 @@ async function startStation(station){
   setPlayIcon(true);
 
   // UI text
-  els.nowPlaying.textContent = `${station.name}`;
+  updateNowPlaying(station.name, station);
 
   // Media Session
   if ('mediaSession' in navigator) {
@@ -422,14 +537,7 @@ async function startStation(station){
           if (!item) return;
           if (item.station && item.station.toLowerCase() !== 'nightride') return; // keep only the nightride line
           const title = station.parseNowPlaying ? station.parseNowPlaying(item) : null;
-          if (title) {
-            els.nowPlaying.textContent = title;
-            if ('mediaSession' in navigator) {
-              navigator.mediaSession.metadata = new MediaMetadata({
-                title, artist: station.name, album: station.location
-              });
-            }
-          }
+          if (title != null) updateNowPlaying(title, station);
         } catch (_) {}
       };
       sse.onerror = () => { /* network hiccup; browser auto-reconnects */ };
@@ -451,16 +559,8 @@ async function startStation(station){
         // Let each station's parser handle its own shape
         const title = station.parseNowPlaying ? station.parseNowPlaying(payload) : null;
 
-        if (title) {
-          els.nowPlaying.textContent = title;
-          if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-              title,
-              artist: station.name,
-              album: station.location
-            });
-          }
-        }
+        if (title != null) updateNowPlaying(title, station);
+
       } catch (e) {
         // quietly ignore CORS/HTTP/parse issues
       }

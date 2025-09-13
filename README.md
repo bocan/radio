@@ -1,4 +1,4 @@
-# 🎵 My "8 Radio Stations" Player
+# 🎵 My "12 Radio Stations" Player
 
 A simple, open-source web player for streaming curated internet radio stations.  
 Built with **vanilla HTML/CSS/JS**, no frameworks required.
@@ -41,6 +41,7 @@ WWOZ 90.7 FM             - New Orleans, Louisiana
 ```
 
 ---
+
 ## 🚀 Getting Started
 
 ### Clone & run locally

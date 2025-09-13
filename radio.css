@@ -165,3 +165,40 @@ button.icon:hover { color: var(--text); }
 :root[data-theme="dark"] .theme-toggle { color: #a8b3c6; }    /* your --muted */
 :root[data-theme="dark"] .player .icon:hover,
 :root[data-theme="dark"] .theme-toggle:hover { color: #e7edf6; } /* your --text */
+
+/* Info details beside Now Playing */
+.np-details {
+  margin-left: 6px;
+}
+.np-details > summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: .9rem;
+  color: var(--muted);
+  border: 1px solid var(--player-border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  user-select: none;
+}
+.np-details[open] > summary {
+  color: var(--text);
+}
+.np-details > div {
+  margin-top: 8px;
+  max-width: 420px;
+  font-size: .9rem;
+  color: var(--text);
+}
+@media (max-width: 720px) {
+  .np-details > div { max-width: 60vw; }
+}
+
+/* Player artwork thumbnail */
+.np-art{
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #0f1622;          /* subtle placeholder */
+  border: 1px solid var(--player-border);
+}
+.player-inner{ gap: 12px; }      /* a touch more breathing room */
