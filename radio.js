@@ -168,14 +168,19 @@ const STATIONS = [
       // .tracks.current.metadata.track_title'                                 
       const show = data?.shows?.current;
       const track = data?.tracks?.current.metadata;
+      const art = data?.tracks?.current.album_artwork_image;
 
       const name = (show?.name || '').trim();
-      const track_title  = (track?.track_title  || '').trim();
+      const track_title  = (track?.track_title  || '').trim().replaceAll('&amp;', '&');
 
       if (track_title === '') {
         return `Kiosk Raio - ${name} - Livestreaming`;
       } else {
-        return `${name} : ${track_title}`;
+        return {
+           show: name,
+           title: track_title,
+           artworkUrl: art
+         };
       }
     }
 
@@ -193,6 +198,7 @@ const STATIONS = [
     parseNowPlaying: (scheduleJson) => {
       // 1) Compute the show synchronously
       const show = getCurrentShowName(scheduleJson);
+      //const presenterId = presenter_ID
 
       // 2) Kick off the second fetch and update the UI when it arrives
       fetchJson('https://chris.funderburg.me/proxy/caroline2')
