@@ -5,7 +5,7 @@ Built with **vanilla HTML/CSS/JS**, no frameworks required.
 
 It's running live at: [https://chris.funderburg.me/radio/](https://chris.funderburg.me/radio/)
 
-![screenshot placeholder](preview.png)
+![screenshot placeholder](preview.jpg)
 
 ---
 
