@@ -31,10 +31,36 @@ SOFTWARE.
   <link rel="stylesheet" href="radio.css">
   <meta name="keywords" content="radio, stations, nighttime, stream, streaming, liminal, eerie, community radio">
   <meta name="author" content="Chris Funderburg">
-  <meta property="og:title" content="The Liminal Dial" />
-  <meta property="og:description" content="The best community radio streams for late nights, working, or just getting away from commercial radio." />
-  <meta property="og:image" content="https://chris.funderburg.me/radio/preview.png" />
-  <meta property="og:url" content="https://chris.funderburg.me/radio" />
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://chris.funderburg.me/radio/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Chris Funderburg — Radio">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:title" content="The Liminal Dial">
+  <meta property="og:description" content="The best community radio streams for late nights, working, or just getting away from commercial radio.">
+  <meta property="og:url" content="https://chris.funderburg.me/radio/">
+  <meta property="og:image" content="https://chris.funderburg.me/radio/preview.png">
+  <meta property="og:image:alt" content="A screenshot of the radio stations featured on the site">
+  <meta property="og:image:width" content="2244">
+  <meta property="og:image:height" content="1520">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Liminal Dial">
+  <meta name="twitter:description" content="The best community radio streams for late nights, working, or just getting away from commercial radio.">
+  <meta name="twitter:image" content="https://chris.funderburg.me/radio/preview.png">
+
+  <!-- Mastodon / Fediverse -->
+  <link rel="me" href="https://infosec.exchange/@bocan">
+  <meta name="fediverse:creator" content="@bocan@infosec.exchange">
+
+  <!-- Browser UI polish -->
+  <meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f7f9fc" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
 
   <!-- Autumn Leaves -->
   <link rel="stylesheet" href="autumn-leaves.css">
@@ -110,6 +136,67 @@ SOFTWARE.
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="caroline.js"></script>
   <script src="radio.js"></script>
+
+  <script>
+  (function () {
+    // Ensure STATIONS is defined (top-level const is fine)
+    if (typeof STATIONS === 'undefined') return;
+
+    const items = STATIONS.map((s, idx) => {
+      const stream = (s.streams && s.streams[0]) || {};
+      const desc = stripHtml(s.description || '');
+      const site = extractFirstHref(s.description) || undefined;
+
+      return {
+        "@type": "ListItem",
+        "position": idx + 1,
+        "item": {
+          "@type": "AudioObject",
+          "name": s.name,
+          "url": site,
+          "contentUrl": stream.url || undefined,
+          "encodingFormat": stream.type || undefined,
+          "description": desc || undefined,
+
+          // ✅ Put isLiveBroadcast here, inside a BroadcastEvent:
+          "publication": {
+            "@type": "BroadcastEvent",
+            "isLiveBroadcast": true
+            // Optional if you have them:
+            // "startDate": "2025-09-13T00:00:00Z",
+            // "publishedOn": { "@type": "RadioBroadcastService", "name": s.name }
+          }
+        }
+      };
+    });
+
+    const data = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Late-Night Community Radio Streams",
+      "itemListElement": items
+    };
+
+    const el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.text = JSON.stringify(data);
+    document.head.appendChild(el);
+
+    function stripHtml(html) {
+      const d = document.createElement('div');
+      d.innerHTML = html;
+      return (d.textContent || '').trim();
+    }
+    function extractFirstHref(html) {
+      if (!html) return null;
+      const d = document.createElement('div');
+      d.innerHTML = html;
+      const a = d.querySelector('a[href]');
+      return a ? a.href : null;
+    }
+  })();
+  </script>
+
 
   <!-- Falling Leaves -->
   <script type="module" src="autumn-leaves.js"></script>
