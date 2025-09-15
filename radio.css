@@ -202,3 +202,67 @@ button.icon:hover { color: var(--text); }
   border: 1px solid var(--player-border);
 }
 .player-inner{ gap: 12px; }      /* a touch more breathing room */
+
+.site-footer {
+  text-align: center;
+  margin: 20px 0;
+}
+.site-footer a {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  opacity: 0.6;
+}
+.site-footer a:hover {
+  opacity: 1;
+  color: var(--accent);
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+}
+.modal-content {
+  background: var(--card);
+  color: var(--text);
+  max-width: 500px;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+.modal-content button {
+  margin-top: 12px;
+  border: none;
+  background: var(--accent);
+  color: #000;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.modal-content button:hover {
+  background: var(--accent-2);
+}
+
+.disclaimer-link {
+  margin-left: 12px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-decoration: underline;
+  opacity: 0.7;
+  align-self: center;
+}
+.disclaimer-link:hover {
+  opacity: 1;
+  color: var(--accent);
+}
+

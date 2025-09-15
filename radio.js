@@ -59,7 +59,13 @@ const STATIONS = [
     parseNowPlaying: (obj) => {
       const artist = (obj.artist || '').trim();
       const title  = (obj.title  || '').trim();
-      return (artist && title) ? `${artist} — ${title}` : (title || artist || null);
+      const album = (obj.album || '').trim();
+
+      return {
+        artist: artist,
+        title: title,
+        album: album
+      };
     }
   },
 
@@ -96,8 +102,13 @@ const STATIONS = [
       if (!data) return null;
       const artist = (data.artist || '').trim();
       const track  = (data.song   || '').trim();
-      if (artist && track) return `${artist} — ${track}`;
-      return data.title || null;
+      const album = (data.release || data.DiskName).trim().replaceAll('-', ':');
+      return {
+        artist: artist,
+        title: track,
+        album: album
+      };
+
     }
   },
 
@@ -108,7 +119,18 @@ const STATIONS = [
     description: "<a href='https://www.thelotradio.com/' target=_blank>The Lot Radio</a> is an independent, non-profit, online radio station live streaming 24/7 from a reclaimed shipping container on an empty lot in NYC. Expect a continuous stream of the best and most varied music New York City has to offer.",
     streams: [
       { url: 'https://livepeercdn.studio/hls/85c28sa2o8wppm58/index.m3u8', type: 'application/vnd.apple.mpegurl' }
-    ]
+    ],
+    metadataUrl: 'https://chris.funderburg.me/thelot.json',
+    parseNowPlaying: (data) => {
+      // .tracks.current.metadata.track_title'
+      const show = data?.event?.summary;
+      const description = data?.event?.description;
+
+      return {
+         show: show,
+         descriptionHtml: description,
+      };
+    }
   },
 
   {
@@ -139,7 +161,7 @@ const STATIONS = [
     id: 'kennetradio',
     name: 'Kennet Radio',
     location: 'Newbury, United Kingdom',
-    description: "<a href='https://kennetradio.com/' target=_blank>Kennet Radio</a> is my local community radio station, broadcasting on 106.7 FM to Newbury and Thatcham. Formed in October 2012 as a not-for-profit, volunteer-led organisation, they were awarded a Community Radio broadcasting licence by Ofcom in 2016 and have been broadcasting on FM since March 2018.",
+    description: "<a href='https://kennetradio.com/' target=_blank>Kennet Radio</a> is my local community radio station, broadcasting on 106.7 FM to Newbury and Thatcham. Formed in October 2012 as a not-for-profit, volunteer-led organisation, they were awarded a Community Radio broadcasting licence by Ofcom in 2016.",
     streams: [
       { url: 'https://stream.kennetradio.com/128.mp3', type: 'audio/aac' }
     ],
@@ -160,12 +182,15 @@ const STATIONS = [
     name: 'Kiosk Radio',
     location: 'Brussels, Belgium',
     description: "<a href='https://kioskradio.com' target=_blank>Kiosk Radio</a> is a community web radio station and streaming platform broadcasting 24/7 from a wooden kiosk in the heart of Brussels’ historic 'Parc Royal'. Since 2017, it’s been a place where music drifts between genres without boundaries or rules. This is a European twin of <i>The Lot Radio</i> above.",
+   //   { url: 'https://kioskradiobxl.out.airtime.pro/kioskradiobxl_b', type: 'audio/aac' }
+   //   { url: 'https://origin.streamnerd.nl/kioskradio/kioskradio/playlist.m3u8', type: 'application/vnd.apple.mpegurl' }
+
     streams: [
       { url: 'https://kioskradiobxl.out.airtime.pro/kioskradiobxl_b', type: 'audio/aac' }
     ],
     metadataUrl: 'https://chris.funderburg.me/proxy/kiosk',
     parseNowPlaying: (data) => {
-      // .tracks.current.metadata.track_title'                                 
+      // .tracks.current.metadata.track_title'
       const show = data?.shows?.current;
       const track = data?.tracks?.current.metadata;
       const art = data?.tracks?.current.album_artwork_image;
@@ -174,7 +199,9 @@ const STATIONS = [
       const track_title  = (track?.track_title  || '').trim().replaceAll('&amp;', '&');
 
       if (track_title === '') {
-        return `Kiosk Raio - ${name} - Livestreaming`;
+        return {
+           show: `Kiosk Radio - ${name} - Livestreaming`
+         };
       } else {
         return {
            show: name,
@@ -190,7 +217,7 @@ const STATIONS = [
     id: 'caroline',
     name: 'Radio Caroline',
     location: 'United Kingdom',
-    description: "<a href='https://radiocaroline.co.uk' target=_blank>Radio Caroline</a> is a legendary UK station that began in 1964 as an offshore “pirate” broadcaster, challenging the BBC’s monopoly by playing pop and rock that mainstream radio ignored. It transmitted from ships in the North Sea and became a cultural icon. Today, Caroline continues online, 648 AM, and on DAB, keeping alive its heritage of free-spirited, independent broadcasting.",
+    description: "<a href='https://radiocaroline.co.uk' target=_blank>Radio Caroline</a> is a legendary UK station that began in 1964 as an offshore “pirate” broadcaster, challenging the BBC’s monopoly by playing pop and rock that mainstream radio ignored. It transmitted from ships in the North Sea and became a cultural icon. Today, Caroline continues online, 648 AM, and DAB, keeping alive its heritage independent broadcasting.",
     streams: [
       { url: 'https://stream.radiocaroline.net/rc128/;stream.mp3', type: 'audio/mpeg' }
     ],
@@ -206,7 +233,7 @@ const STATIONS = [
           const song   = now.songs?.[0] || {};
           const artist = (song.artist || 'Unknown Artist').trim();
           const track  = (song.title  || 'Unknown Title').trim();
-    
+
           // <-- do the actual DOM update here
           els.nowPlaying.textContent = `${show} — ${artist} — ${track}`;
         })
@@ -237,7 +264,7 @@ const STATIONS = [
     id: 'ctuk',
     name: 'CTUK',
     location: 'Montreal, Canada',
-    description: "<a href='https://ckut.ca' target=_blank>CTUK</a> .CKUT is a non-profit, campus/community radio station based at McGill University in Montreal. CKUT provides alternative music, news and spoken word programming to the city of Montreal, surrounding areas, and around the world 24 hours a day, 365 days a year.",
+    description: "<a href='https://ckut.ca' target=_blank>CTUK</a> is a non-profit, campus/community radio station based at McGill University in Montreal. CKUT provides alternative music, news and spoken word programming to the city of Montreal, surrounding areas, and around the world 24 hours a day, 365 days a year.",
     streams: [
       { url: 'https://delray.ckut.ca:8001/903fm-192-stereo', type: 'audio/mpeg' }
     ],
@@ -268,6 +295,7 @@ const els = {
   npDetails: document.getElementById('npDetails'),
   npRich: document.getElementById('npRich'),
   npArt: document.getElementById('npArt'),
+  btnMute: document.getElementById('btnMute'),
 };
 
 let currentStation = null;
@@ -279,6 +307,31 @@ els.volume.value = savedVol !== null ? savedVol : 0.8;
 els.audio.volume = parseFloat(els.volume.value);
 
 const savedStationId = localStorage.getItem('ir_last_station');
+
+const btnMute   = document.getElementById('btnMute');
+const icoMute   = document.getElementById('icoMute');
+const icoUnmute = document.getElementById('icoUnmute');
+
+btnMute.addEventListener('click', toggleMute);
+btnMute.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    toggleMute();
+  }
+});
+
+function syncMuteUI() {
+  btnMute.setAttribute('aria-pressed', String(els.audio.muted));
+  icoUnmute.style.display = els.audio.muted ? 'none' : '';
+  icoMute.style.display   = els.audio.muted ? '' : 'none';
+}
+
+function toggleMute() {
+  els.audio.muted = !els.audio.muted;
+  syncMuteUI();
+}
+
+syncMuteUI();
 
 // Minimal sanitizer: strips <script> and on* handlers, keeps common tags.
 // For fully untrusted sources, consider DOMPurify. This is intentionally conservative.
@@ -317,6 +370,7 @@ function updateNowPlaying(result, station) {
     const artist = (result.artist || '').trim();
     const title  = (result.title  || '').trim();
     const show   = (result.show   || '').trim();
+    const album   = (result.album || '').trim();
     const stationName = (result.station || station?.name || '').trim();
 
     // figure best primary line
@@ -324,6 +378,10 @@ function updateNowPlaying(result, station) {
       primary = result.text.trim();
     } else if (show && artist && title) {
       primary = `${show} - ${artist} — ${title}`;
+    } else if (show && title) {
+      primary = `${show} - ${title}`;
+    } else if (artist && title && album) {
+      primary = `${artist} — ${title} - from ${album}`;
     } else if (artist && title) {
       primary = `${artist} — ${title}`;
     } else if (title) {
@@ -474,6 +532,17 @@ async function startStation(station){
       hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
+        liveSyncDurationCount: 4,         // <- stay ~4 segments behind live edge
+        liveMaxLatencyDurationCount: 10,  // <- if we drift, allow buffering back up
+        maxBufferLength: 25,              // seconds
+        backBufferLength: 30,
+        capLevelToPlayerSize: true,       // <- avoid unnecessary upswitches
+        startLevel: -1,                   // auto
+        maxBufferHole: 1.5,             // tolerate small holes
+        nudgeOffset: 0.1,               // small nudge to jump over gaps
+        nudgeMaxRetry: 5,
+        maxFragLookUpTolerance: 0.5,
+        maxFragLookUpTolerance: 0.5
       });
       hls.loadSource(source.url);
       hls.attachMedia(els.audio);
@@ -483,19 +552,22 @@ async function startStation(station){
         // data.samples: [{ pts, dts, data: Uint8Array }, ...]
         for (const s of data.samples) {
           const text = id3ToString(s.data);
+          console.log('ID3 sample : ', text);
           maybeUpdateFromText(text);
         }
       });
 
       hls.on(Hls.Events.ERROR, (_evt, data) => {
-        if (data?.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
-            case Hls.ErrorTypes.MEDIA_ERROR:   hls.recoverMediaError(); break;
-            default: try { hls.destroy(); } catch {} hls = null;
-          }
+        console.warn('HLS error', data.type, data.details, data);
+        if (data.fatal) {
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+          else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+          else try { hls.destroy(); } catch {}
         }
       });
+      hls.on(Hls.Events.BUFFER_STALLED, () => console.warn('BUFFER_STALLED'));
+      hls.on(Hls.Events.BUFFER_SEEKING, () => console.log('BUFFER_SEEKING'));
+      hls.on(Hls.Events.LEVEL_SWITCHED, (_e, d) => console.log('LEVEL_SWITCHED ->', d.level));
 
       // Optional: pick first audio-only track if present
       hls.on(Hls.Events.MANIFEST_PARSED, () => {

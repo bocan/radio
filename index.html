@@ -44,8 +44,8 @@ SOFTWARE.
   <meta property="og:url" content="https://chris.funderburg.me/radio/">
   <meta property="og:image" content="https://chris.funderburg.me/radio/preview.jpg">
   <meta property="og:image:alt" content="A screenshot of the radio stations featured on the site">
-  <meta property="og:image:width" content="2244">
-  <meta property="og:image:height" content="1520">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="626">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
@@ -91,12 +91,13 @@ SOFTWARE.
     </svg>
   </button>
     </header>
-    <p class="hint">Welcome to my hand-picked collection of 12 radio streams. They have a wild assortment of music genres, news, and talk,  but like most community and internet stations they share an eerie, liminal, <a href="https://www.welcometonightvale.com/" target=_blank>Nightvale</a>-like aesthetic. Like maybe they're broadcasting from a 1-person pocket universe, and you're the only listener.</p><p><br /></p>
+    <p class="hint">Welcome to my hand-picked collection of 12 radio streams. They have a wild assortment of music genres, news, and talk, but like most community / public / internet stations they have an eerie, liminal, <a href="https://www.welcometonightvale.com/" target=_blank>Nightvale</a>-like aesthetic. Like maybe they're broadcasting from a 1-person pocket universe, and you're the only listener. 😉</p>
+    <p><br /></p>
 
     <div id="stations" class="grid" role="list" aria-label="Station list"></div>
 
     <p class="hint">
-    Tips: Press <kbd>Space</kbd> to Play/Pause; <kbd>←/→</kbd> to adjust volume.<br />This radio page is <a href="https://github.com/bocan/radio" target=_blank>open source</a> so feel free to use it to build your own. If you enjoy it, feel free to <a href="https://buymeacoffee.com/bocan" target=_blank>buy me a coffee</a>!
+    Tips: Press <kbd>Space</kbd> to Play/Pause; <kbd>←/→</kbd> to adjust volume.<br />This radio page is <a href="https://github.com/bocan/radio" target=_blank>open source</a> so feel free to use it to build your own. If you enjoy the code or any of the stations, feel free to <a href="https://buymeacoffee.com/bocan" target=_blank>buy me a coffee</a>! Donations support hosting costs and any surplus  will be split equally between these stations - as long as they have a donation method on their site.
     </p>
   </div>
 
@@ -122,11 +123,29 @@ SOFTWARE.
         <div id="npRich"></div>
       </details>
 
-      <div class="vol-wrap" title="Volume">
-        <!-- existing volume stuff -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+      <div class="vol-wrap" title="Mute/Unmute">
+        <!-- Mute/Unmute toggle -->
+        <button id="btnMute" class="icon" aria-label="Mute/Unmute" aria-pressed="false" type="button">
+          <!-- Unmuted -->
+          <svg id="icoUnmute" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+               viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 10v4h4l5 5V5L7 10H3z"/>
+          </svg>
+          <!-- Muted -->
+          <svg id="icoMute" style="display:none" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+               viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16.5 12L19 14.5l1.5-1.5L18 10.5l2.5-2.5L19 6.5 16.5 9 14 6.5 12.5 8l2.5 2.5-2.5 2.5L14 14.5z"/>
+            <path d="M3 10v4h4l5 5V5L7 10H3z"/>
+          </svg>
+        </button>
+
+        <!-- Volume slider -->
         <input aria-label="Volume" id="volume" type="range" min="0" max="1" step="0.01" />
       </div>
+
+      <!-- Disclaimer link -->
+      <a href="#" id="disclaimerLink" class="disclaimer-link">Disclaimer</a>
+
     </div>
   </div>
 
@@ -202,5 +221,21 @@ SOFTWARE.
   <script type="module" src="autumn-leaves.js"></script>
 
   </main>
+
+  <div id="disclaimerModal" class="modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="disclaimerTitle">
+      <h2 id="disclaimerTitle">Disclaimer</h2>
+      <p>
+        <ul>
+          <li>This site embeds and links to publicly available radio streams operated by their respective broadcasters.</li>
+          <li>All audio content, metadata, and artwork remain the property of the original stations and their rights holders.</li>
+          <li>No streams are stored or re-hosted here — this page is purely a curated listening interface.</li>
+          <li>Donations support hosting costs; any surplus will be shared with the featured stations where possible.</li>
+          <li>If you operate one of the listed stations and would prefer not to be included, please <a href="mailto:chris@funderburg.me">contact me</a>.
+      </p>
+      <button id="closeDisclaimer" aria-label="Close disclaimer">Close</button>
+    </div>
+  </div>
+  <script src="footer.js"></script>
 </body>
 </html>
