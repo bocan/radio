@@ -255,7 +255,7 @@ const STATIONS = [
     metadataUrl: 'https://chris.funderburg.me/proxy/kboo',
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
-      const show_title = (data[0].title || '').trim();;
+      const show_title = (data[0].title || '').trim();
       return `KBOO - ${show_title}`;
     }
   },
@@ -541,7 +541,6 @@ async function startStation(station){
         maxBufferHole: 1.5,             // tolerate small holes
         nudgeOffset: 0.1,               // small nudge to jump over gaps
         nudgeMaxRetry: 5,
-        maxFragLookUpTolerance: 0.5,
         maxFragLookUpTolerance: 0.5
       });
       hls.loadSource(source.url);
@@ -628,9 +627,7 @@ async function startStation(station){
         const ctype = (res.headers.get('content-type') || '').toLowerCase();
 
         // Decide payload format:
-        const wantsXml = station.metadataFormat === 'xml'
-          || /(^|\/)(xml|html)\b/.test(ctype)           // application/xml, text/xml, text/html (some servers lie)
-          || /text\/plain/.test(ctype) && station.metadataFormat === 'xml';
+        const wantsXml = station.metadataFormat === 'xml' || /(^|\/)(xml|html)\b/.test(ctype) || /text\/plain/.test(ctype) && station.metadataFormat === 'xml';
 
         const payload = wantsXml ? await res.text() : await res.json();
 
