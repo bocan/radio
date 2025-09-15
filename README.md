@@ -22,6 +22,10 @@ It's running live at: [https://chris.funderburg.me/radio/](https://chris.funderb
 - Metadata support (`Now Playing`) for stations that expose APIs
 - HTTPS support (required by many streams)
 - Works with [HLS.js](https://github.com/video-dev/hls.js) for `.m3u8` streams
+- Supports Album art where the stream publishes any
+- Supports long show descriptions 
+- Should work well with screenreaders
+- Plays nicely with Car Bluetooth on Android
 
 ---
 

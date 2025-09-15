@@ -7,24 +7,24 @@ let sse = null;
  * Optionally provide a metadataUrl and a custom parser (parseNowPlaying) if the host exposes a JSON endpoint
  * (e.g. Icecast at /status-json.xsl). Without it, we fall back to the station name.
  */
-const STATIONS = [
-  {
+const STATIONS = [{
     id: 'groove-salad',
     name: 'SomaFM: Groove Salad',
     location: 'San Francisco, California',
-   description: '<a href="https://somafm.com/" target=_blank>SomaFM</a> is a trailblazing commercial-free, listener-supported internet radio broadcaster based in San Francisco with a diverse catalog including ambient, downtempo, IDM, world beats, and more—often spotlighting indie and unsigned artists.',
-    streams: [
-      { url: 'https://ice1.somafm.com/groovesalad-256-mp3', type: 'audio/mpeg' },
-      { url: 'https://ice2.somafm.com/groovesalad-256-mp3', type: 'audio/mpeg' }
-    ],
+    description: '<a href="https://somafm.com/" target=_blank>SomaFM</a> is a trailblazing commercial-free, listener-supported internet radio broadcaster based in San Francisco with a diverse catalog including ambient, downtempo, IDM, world beats, and more—often spotlighting indie and unsigned artists.',
+    streams: [{
+      url: 'https://ice1.somafm.com/groovesalad-256-mp3', type: 'audio/mpeg'
+    }, {
+      url: 'https://ice2.somafm.com/groovesalad-256-mp3', type: 'audio/mpeg'
+    }],
     // Example metadata endpoint (may be CORS-restricted):
     metadataUrl: 'https://somafm.com/songs/groovesalad.json',
     parseNowPlaying: (data) => {
       const s = Array.isArray(data?.songs) ? data.songs[0] : null;
       if (!s) return null;
       const artist = (s.artist || '').trim();
-      const title  = (s.title  || '').trim();
-      const album  = (s.album  || '').trim();
+      const title = (s.title || '').trim();
+      const album = (s.album || '').trim();
       // Show "Artist — Title" if both exist, else whichever we have
       return (artist && title) ? `${artist} — ${title}, from ${album}` : (title || artist || null);
     }
@@ -34,10 +34,10 @@ const STATIONS = [
     id: 'ambientsleepingpill',
     name: 'Ambiant Sleeping Pill',
     location: 'South Plainfield, New Jersey',
-   description: "<a href='https://ambientsleepingpill.com' target=_blank>Ambient Sleeping Pill</a> An internet radio station streaming music for Sleeping, taking Naps, and other more wakeful Moments; Tranquil, Deep, Serene; no breaks, no ads, no beats, no new-age cheese.",
-    streams: [
-      { url: 'https://radio.stereoscenic.com/asp-h', type: 'audio/mpeg' }
-    ],
+    description: "<a href='https://ambientsleepingpill.com' target=_blank>Ambient Sleeping Pill</a> An internet radio station streaming music for Sleeping, taking Naps, and other more wakeful Moments; Tranquil, Deep, Serene; no breaks, no ads, no beats, no new-age cheese.",
+    streams: [{
+      url: 'https://radio.stereoscenic.com/asp-h', type: 'audio/mpeg'
+    }],
     metadataUrl: 'https://chris.funderburg.me/proxy/ambient',
     parseNowPlaying: (data) => {
       const s = data?.streams?.[3];
@@ -50,15 +50,15 @@ const STATIONS = [
     id: 'nightride',
     name: 'Nightride FM (Synthwave)',
     location: 'Global',
-   description: '<a href="https://nightride.fm/" target=_blank>Nightride FM</a> is an independent, community-driven radio station and digital platform specialising in synthwave and adjacent genres. It delivers 24/7 high-quality, ad-free streaming across multiple curated sub-stations.',
-    streams: [
-      { url: 'https://stream.nightride.fm/nightride.mp3', type: 'audio/mpeg' }
-    ],
+    description: '<a href="https://nightride.fm/" target=_blank>Nightride FM</a> is an independent, community-driven radio station and digital platform specialising in synthwave and adjacent genres. It delivers 24/7 high-quality, ad-free streaming across multiple curated sub-stations.',
+    streams: [{
+      url: 'https://stream.nightride.fm/nightride.mp3', type: 'audio/mpeg'
+    }],
     metadataUrl: 'https://nightride.fm/meta',
     metadataFormat: 'sse',
     parseNowPlaying: (obj) => {
       const artist = (obj.artist || '').trim();
-      const title  = (obj.title  || '').trim();
+      const title = (obj.title || '').trim();
       const album = (obj.album || '').trim();
 
       return {
@@ -74,16 +74,16 @@ const STATIONS = [
     name: 'KUTX 98.9 FM',
     location: 'Austin, Texas',
     description: "<a href='https://kutx.org/' target=_blank>KUTX</a> is deeply rooted in the Austin music scene. The on-air hosts handpick music with a collaborative editorial slant to highlight the city’s creative heartbeat—ranging from indie rock and hip-hop to electronica, outlaw country, jazz, blues, and psych-metal",
-    streams: [
-      { url: 'https://streams.kut.org/4428_192.mp3', type: 'audio/mpeg' }
-    ],
+    streams: [{
+      url: 'https://streams.kut.org/4428_192.mp3', type: 'audio/mpeg'
+    }],
     metadataUrl: 'https://api.composer.nprstations.org/v1/widget/50ef24ebe1c8a1369593d032/now?format=json',
     parseNowPlaying: (data) => {
       // NPR widget shape: { onNow: { song: { trackName, artistName, ... } } }
       const s = data?.onNow?.song;
       if (!s) return null;
       const artist = (s.artistName || '').trim();
-      const title  = (s.trackName  || '').trim();
+      const title = (s.trackName || '').trim();
       if (artist && title) return `${artist} — ${title}`;
       return title || artist || null; // fallback if one is missing
     }
@@ -94,14 +94,14 @@ const STATIONS = [
     name: 'WWOZ 90.7 FM',
     location: 'New Orleans, Louisiana',
     description: "<a href='https://www.wwoz.org/' target=_blank>WWOZ</a> 99.7 FM is the New Orleans Jazz and Heritage Station, a community radio station currently operating out of the French Quarter in New Orleans. You can often catch this one playing some delta blues, jazz, or New Orleans funk.",
-    streams: [
-      { url: 'https://wwoz-sc.streamguys1.com/wwoz-hi.mp3', type: 'audio/mpeg' }
-    ],
+    streams: [{
+      url: 'https://wwoz-sc.streamguys1.com/wwoz-hi.mp3', type: 'audio/mpeg'
+    }],
     metadataUrl: 'https://chris.funderburg.me/proxy/wwoz', // I proxy 'https://www.wwoz.org/api/tracks/current',
     parseNowPlaying: (data) => {
       if (!data) return null;
       const artist = (data.artist || '').trim();
-      const track  = (data.song   || '').trim();
+      const track = (data.song || '').trim();
       const album = (data.release || data.DiskName).trim().replaceAll('-', ':');
       return {
         artist: artist,
@@ -117,9 +117,9 @@ const STATIONS = [
     name: 'The Lot Radio',
     location: 'New York City',
     description: "<a href='https://www.thelotradio.com/' target=_blank>The Lot Radio</a> is an independent, non-profit, online radio station live streaming 24/7 from a reclaimed shipping container on an empty lot in NYC. Expect a continuous stream of the best and most varied music New York City has to offer.",
-    streams: [
-      { url: 'https://livepeercdn.studio/hls/85c28sa2o8wppm58/index.m3u8', type: 'application/vnd.apple.mpegurl' }
-    ],
+    streams: [{
+      url: 'https://livepeercdn.studio/hls/85c28sa2o8wppm58/index.m3u8', type: 'application/vnd.apple.mpegurl'
+    }],
     metadataUrl: 'https://chris.funderburg.me/thelot.json',
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
@@ -127,8 +127,8 @@ const STATIONS = [
       const description = data?.event?.description;
 
       return {
-         show: show,
-         descriptionHtml: description,
+        show: show,
+        descriptionHtml: description,
       };
     }
   },
@@ -138,10 +138,10 @@ const STATIONS = [
     name: 'Radio Free Nashville',
     location: 'Nashville, Tennessee',
     description: "<a href='https://www.radiofreenashville.org' target=_blank>Radio Free Nashville</a> is a true community radio station, completely locally owned and operated by volunteers from the Nashville and Middle Tennessee community. Local people create programming, design events, and keep the station up and running and on the air. ",
-    streams: [
-      { url: 'https://ice23.securenetsystems.net/WRFNLP', type: 'audio/aac' }
-    ],
-    metadataFormat: 'xml',  // 'xml' | 'json' (default json if omitted)
+    streams: [{
+      url: 'https://ice23.securenetsystems.net/WRFNLP', type: 'audio/aac'
+    }],
+    metadataFormat: 'xml', // 'xml' | 'json' (default json if omitted)
     metadataUrl: 'https://streamdb8web.securenetsystems.net/player_status_update/WRFNLP.xml',
     parseNowPlaying: (xmlText) => {
       const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
@@ -149,7 +149,7 @@ const STATIONS = [
       if (doc.querySelector('parsererror')) return null;
 
       const pick = (tag) => (doc.querySelector(tag)?.textContent || '').trim();
-      const title  = pick('title');
+      const title = pick('title');
       const artist = pick('artist');
 
       if (artist && title) return `${artist} — ${title}`;
@@ -162,16 +162,16 @@ const STATIONS = [
     name: 'Kennet Radio',
     location: 'Newbury, United Kingdom',
     description: "<a href='https://kennetradio.com/' target=_blank>Kennet Radio</a> is my local community radio station, broadcasting on 106.7 FM to Newbury and Thatcham. Formed in October 2012 as a not-for-profit, volunteer-led organisation, they were awarded a Community Radio broadcasting licence by Ofcom in 2016.",
-    streams: [
-      { url: 'https://stream.kennetradio.com/128.mp3', type: 'audio/aac' }
-    ],
+    streams: [{
+      url: 'https://stream.kennetradio.com/128.mp3', type: 'audio/aac'
+    }],
     metadataFormat: 'text',
     metadataUrl: 'https://kennet.redio.co/hooks/get/y525gyrvtt',
     parseNowPlaying: (text) => {
       if (typeof text !== 'string') return null;
       const parts = text.split(/\s*-\s*/, 2); // split into at most 2 pieces
       const artist = (parts[0] || '').trim();
-      const title  = (parts[1] || '').trim();
+      const title = (parts[1] || '').trim();
       if (artist && title) return `${artist} — ${title}`;
       return text.trim() || null; // fallback if format is odd
     }
@@ -182,12 +182,12 @@ const STATIONS = [
     name: 'Kiosk Radio',
     location: 'Brussels, Belgium',
     description: "<a href='https://kioskradio.com' target=_blank>Kiosk Radio</a> is a community web radio station and streaming platform broadcasting 24/7 from a wooden kiosk in the heart of Brussels’ historic 'Parc Royal'. Since 2017, it’s been a place where music drifts between genres without boundaries or rules. This is a European twin of <i>The Lot Radio</i> above.",
-   //   { url: 'https://kioskradiobxl.out.airtime.pro/kioskradiobxl_b', type: 'audio/aac' }
-   //   { url: 'https://origin.streamnerd.nl/kioskradio/kioskradio/playlist.m3u8', type: 'application/vnd.apple.mpegurl' }
+    //   { url: 'https://kioskradiobxl.out.airtime.pro/kioskradiobxl_b', type: 'audio/aac' }
+    //   { url: 'https://origin.streamnerd.nl/kioskradio/kioskradio/playlist.m3u8', type: 'application/vnd.apple.mpegurl' }
 
-    streams: [
-      { url: 'https://kioskradiobxl.out.airtime.pro/kioskradiobxl_b', type: 'audio/aac' }
-    ],
+    streams: [{
+      url: 'https://kioskradiobxl.out.airtime.pro/kioskradiobxl_b', type: 'audio/aac'
+    }],
     metadataUrl: 'https://chris.funderburg.me/proxy/kiosk',
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
@@ -196,18 +196,18 @@ const STATIONS = [
       const art = data?.tracks?.current.album_artwork_image;
 
       const name = (show?.name || '').trim();
-      const track_title  = (track?.track_title  || '').trim().replaceAll('&amp;', '&');
+      const track_title = (track?.track_title || '').trim().replaceAll('&amp;', '&');
 
       if (track_title === '') {
         return {
-           show: `Kiosk Radio - ${name} - Livestreaming`
-         };
+          show: `Kiosk Radio - ${name} - Livestreaming`
+        };
       } else {
         return {
-           show: name,
-           title: track_title,
-           artworkUrl: art
-         };
+          show: name,
+          title: track_title,
+          artworkUrl: art
+        };
       }
     }
 
@@ -218,9 +218,9 @@ const STATIONS = [
     name: 'Radio Caroline',
     location: 'United Kingdom',
     description: "<a href='https://radiocaroline.co.uk' target=_blank>Radio Caroline</a> is a legendary UK station that began in 1964 as an offshore “pirate” broadcaster, challenging the BBC’s monopoly by playing pop and rock that mainstream radio ignored. It transmitted from ships in the North Sea and became a cultural icon. Today, Caroline continues online, 648 AM, and DAB, keeping alive its heritage independent broadcasting.",
-    streams: [
-      { url: 'https://stream.radiocaroline.net/rc128/;stream.mp3', type: 'audio/mpeg' }
-    ],
+    streams: [{
+      url: 'https://stream.radiocaroline.net/rc128/;stream.mp3', type: 'audio/mpeg'
+    }],
     metadataUrl: 'https://chris.funderburg.me/proxy/caroline',
     parseNowPlaying: (scheduleJson) => {
       // 1) Compute the show synchronously
@@ -230,9 +230,9 @@ const STATIONS = [
       // 2) Kick off the second fetch and update the UI when it arrives
       fetchJson('https://chris.funderburg.me/proxy/caroline2')
         .then(now => {
-          const song   = now.songs?.[0] || {};
+          const song = now.songs?.[0] || {};
           const artist = (song.artist || 'Unknown Artist').trim();
-          const track  = (song.title  || 'Unknown Title').trim();
+          const track = (song.title || 'Unknown Title').trim();
 
           // <-- do the actual DOM update here
           els.nowPlaying.textContent = `${show} — ${artist} — ${track}`;
@@ -249,10 +249,13 @@ const STATIONS = [
     name: 'KBOO FM',
     location: 'Portland, Oregon',
     description: "<a href='https://kboo.fm/' target=_blank>KBOO FM</a> KBOO is an independent, member-supported, non-commercial, volunteer-powered community radio station. KBOO embodies equitable social change, shares knowledge, and fosters creativity by delivering locally rooted and diverse music, culture, news, and opinions, with a commitment to the voices of oppressed and underserved communities..",
-    streams: [
-      { url: 'https://live.kboo.fm:8443/high', type: 'audio/mpeg' }
-    ],
-    metadataUrl: 'https://chris.funderburg.me/proxy/kboo',
+    streams: [{
+      url: 'https://live.kboo.fm:8443/high', type: 'audio/mpeg'
+    }],
+    metadataUrlBuilder: () => {
+      const epoch = Math.floor(Date.now() / 1000) - 5;
+      return `https://chris.funderburg.me/proxy/kboo/${epoch}`;
+    },
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
       const show_title = (data[0].title || '').trim();
@@ -265,9 +268,9 @@ const STATIONS = [
     name: 'CTUK',
     location: 'Montreal, Canada',
     description: "<a href='https://ckut.ca' target=_blank>CTUK</a> is a non-profit, campus/community radio station based at McGill University in Montreal. CKUT provides alternative music, news and spoken word programming to the city of Montreal, surrounding areas, and around the world 24 hours a day, 365 days a year.",
-    streams: [
-      { url: 'https://delray.ckut.ca:8001/903fm-192-stereo', type: 'audio/mpeg' }
-    ],
+    streams: [{
+      url: 'https://delray.ckut.ca:8001/903fm-192-stereo', type: 'audio/mpeg'
+    }],
     metadataUrl: 'https://chris.funderburg.me/proxy/ckut',
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
@@ -275,9 +278,9 @@ const STATIONS = [
       const extra = (data?.program?.description_html || '').trim();
 
       return {
-         text: show ? `CTUK — ${show}` : 'CTUK',
-         descriptionHtml: extra || ''   // this will show inside the ℹ︎ panel
-       };
+        text: show ? `CTUK — ${show}` : 'CTUK',
+        descriptionHtml: extra || '' // this will show inside the ℹ︎ panel
+      };
 
     }
   },
@@ -308,8 +311,8 @@ els.audio.volume = parseFloat(els.volume.value);
 
 const savedStationId = localStorage.getItem('ir_last_station');
 
-const btnMute   = document.getElementById('btnMute');
-const icoMute   = document.getElementById('icoMute');
+const btnMute = document.getElementById('btnMute');
+const icoMute = document.getElementById('icoMute');
 const icoUnmute = document.getElementById('icoUnmute');
 
 btnMute.addEventListener('click', toggleMute);
@@ -323,7 +326,7 @@ btnMute.addEventListener('keydown', e => {
 function syncMuteUI() {
   btnMute.setAttribute('aria-pressed', String(els.audio.muted));
   icoUnmute.style.display = els.audio.muted ? 'none' : '';
-  icoMute.style.display   = els.audio.muted ? '' : 'none';
+  icoMute.style.display = els.audio.muted ? '' : 'none';
 }
 
 function toggleMute() {
@@ -342,9 +345,48 @@ function sanitizeHtml(html) {
   tmp.querySelectorAll('script,style,iframe,object').forEach(n => n.remove());
   // strip on* attributes
   tmp.querySelectorAll('*').forEach(el => {
-    [...el.attributes].forEach(a => { if (/^on/i.test(a.name)) el.removeAttribute(a.name); });
+    [...el.attributes].forEach(a => {
+      if (/^on/i.test(a.name)) el.removeAttribute(a.name);
+    });
   });
   return tmp.innerHTML;
+}
+
+function updateMediaSession(primaryText, artworkUrl, station) {
+  if (!('mediaSession' in navigator)) return;
+
+  const artwork = [];
+  if (artworkUrl) {
+    artwork.push({
+      src: artworkUrl,
+      sizes: '96x96',
+      type: 'image/jpeg'
+    }, {
+      src: artworkUrl,
+      sizes: '256x256',
+      type: 'image/jpeg'
+    }, {
+      src: artworkUrl,
+      sizes: '512x512',
+      type: 'image/jpeg'
+    });
+  }
+
+  // Split primaryText into artist/title if you have them; otherwise just pass the string
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: primaryText, // e.g., "Artist — Title" or your show name
+    artist: station?.name || '', // the station name works well here
+    album: station?.location || 'Live',
+    artwork
+  });
+
+  // Transport controls (car/headset buttons)
+  navigator.mediaSession.setActionHandler('play', () => els.audio.play());
+  navigator.mediaSession.setActionHandler('pause', () => els.audio.pause());
+  navigator.mediaSession.setActionHandler('stop', () => els.audio.pause());
+  // Optional:
+  navigator.mediaSession.setActionHandler('previoustrack', null);
+  navigator.mediaSession.setActionHandler('nexttrack', null);
 }
 
 /**
@@ -361,16 +403,16 @@ function updateNowPlaying(result, station) {
   let primary = '';
   let infoHtml = '';
   // artworkUrl handling: if property exists, we update artwork; if absent, we leave it as-is
-  let artFromResult;  // undefined => no change, '' => clear, 'http...' => set
+  let artFromResult; // undefined => no change, '' => clear, 'http...' => set
 
   if (typeof result === 'string') {
     primary = result.trim();
     artFromResult = ''; // strings don't carry art => clear if you prefer; or set to undefined to leave as-is
   } else if (result && typeof result === 'object') {
     const artist = (result.artist || '').trim();
-    const title  = (result.title  || '').trim();
-    const show   = (result.show   || '').trim();
-    const album   = (result.album || '').trim();
+    const title = (result.title || '').trim();
+    const show = (result.show || '').trim();
+    const album = (result.album || '').trim();
     const stationName = (result.station || station?.name || '').trim();
 
     // figure best primary line
@@ -406,6 +448,8 @@ function updateNowPlaying(result, station) {
   // update UI
   els.nowPlaying.textContent = primary;
 
+  updateMediaSession(primary, currentArtworkUrl, station);
+
   if (infoHtml) {
     els.npRich.innerHTML = infoHtml;
     els.npDetails.hidden = false;
@@ -413,7 +457,9 @@ function updateNowPlaying(result, station) {
     els.npRich.textContent = '';
     els.npDetails.hidden = true;
     // also ensure the details collapses if it was open
-    try { els.npDetails.open = false; } catch {}
+    try {
+      els.npDetails.open = false;
+    } catch {}
   }
 
   // Artwork: only change if the parser explicitly provided (or you chose to clear on string)
@@ -430,12 +476,12 @@ function updateNowPlaying(result, station) {
 }
 
 // Render station cards
-function renderStations(){
+function renderStations() {
   els.list.innerHTML = '';
   STATIONS.forEach(st => {
     const card = document.createElement('button');
     card.className = 'card';
-    card.setAttribute('role','listitem');
+    card.setAttribute('role', 'listitem');
     card.setAttribute('aria-label', `${st.name} — ${st.location}`);
     card.innerHTML = `
       <div class="badge">${st.location}</div>
@@ -448,17 +494,17 @@ function renderStations(){
   });
 }
 
-function markActive(){
+function markActive() {
   document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-  if(currentStation){
+  if (currentStation) {
     const el = document.getElementById(`station-${currentStation.id}`);
-    if(el) el.classList.add('active');
+    if (el) el.classList.add('active');
   }
 }
 
 let currentArtworkUrl = '';
 
-function setArtwork(url){
+function setArtwork(url) {
   if (url && typeof url === 'string') {
     els.npArt.src = url;
     els.npArt.hidden = false;
@@ -472,7 +518,7 @@ function setArtwork(url){
   }
 }
 
-async function startStation(station){
+async function startStation(station) {
 
   currentStation = station;
   localStorage.setItem('ir_last_station', station.id);
@@ -480,19 +526,31 @@ async function startStation(station){
   setArtwork(null); // clear art when switching stations
 
   // Stop metadata polling
-  if (metaTimer) { clearInterval(metaTimer); metaTimer = null; }
+  if (metaTimer) {
+    clearInterval(metaTimer);
+    metaTimer = null;
+  }
   if (sse) {
-    try { sse.close(); } catch {}
+    try {
+      sse.close();
+    } catch {}
     sse = null;
   }
 
   // Tear down any previous HLS instance
-  if (hls) { try { hls.destroy(); } catch {} hls = null; }
+  if (hls) {
+    try {
+      hls.destroy();
+    } catch {}
+    hls = null;
+  }
 
   // Pause & clear the audio element so we don't overlap
   els.audio.pause();
   els.audio.removeAttribute('src');
-  try { els.audio.load(); } catch {}
+  try {
+    els.audio.load();
+  } catch {}
 
   // Pick first compatible source (by MIME type) OR just use first if none specify type
   const source = (station.streams || []).find(s => !s.type || els.audio.canPlayType(s.type)) || station.streams?.[0];
@@ -511,7 +569,9 @@ async function startStation(station){
       // --- Safari metadata (ID3 via textTracks) ---------------------------
       // Tracks may appear after load; listen for additions.
       const onTrack = (track) => {
-        try { track.mode = 'hidden'; } catch {}
+        try {
+          track.mode = 'hidden';
+        } catch {}
         track.addEventListener('cuechange', () => {
           for (const cue of track.activeCues || []) {
             // Many streams put JSON or "Artist - Title" in cue.text
@@ -522,7 +582,7 @@ async function startStation(station){
         });
       };
 
-    // Already-present tracks
+      // Already-present tracks
       for (let i = 0; i < els.audio.textTracks.length; i++) onTrack(els.audio.textTracks[i]);
       // Newly-added tracks
       els.audio.textTracks.addEventListener?.('addtrack', (e) => onTrack(e.track));
@@ -532,14 +592,14 @@ async function startStation(station){
       hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
-        liveSyncDurationCount: 4,         // <- stay ~4 segments behind live edge
-        liveMaxLatencyDurationCount: 10,  // <- if we drift, allow buffering back up
-        maxBufferLength: 25,              // seconds
+        liveSyncDurationCount: 4, // <- stay ~4 segments behind live edge
+        liveMaxLatencyDurationCount: 10, // <- if we drift, allow buffering back up
+        maxBufferLength: 25, // seconds
         backBufferLength: 30,
-        capLevelToPlayerSize: true,       // <- avoid unnecessary upswitches
-        startLevel: -1,                   // auto
-        maxBufferHole: 1.5,             // tolerate small holes
-        nudgeOffset: 0.1,               // small nudge to jump over gaps
+        capLevelToPlayerSize: true, // <- avoid unnecessary upswitches
+        startLevel: -1, // auto
+        maxBufferHole: 1.5, // tolerate small holes
+        nudgeOffset: 0.1, // small nudge to jump over gaps
         nudgeMaxRetry: 5,
         maxFragLookUpTolerance: 0.5
       });
@@ -561,7 +621,9 @@ async function startStation(station){
         if (data.fatal) {
           if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
           else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
-          else try { hls.destroy(); } catch {}
+          else try {
+            hls.destroy();
+          } catch {}
         }
       });
       hls.on(Hls.Events.BUFFER_STALLED, () => console.warn('BUFFER_STALLED'));
@@ -573,7 +635,7 @@ async function startStation(station){
         const a = hls.audioTracks || [];
         const eng = a.find(t => /en/i.test(t.name || t.lang || ''));
         if (eng) hls.audioTrack = eng.id;
-        els.audio.play().catch(()=>{});
+        els.audio.play().catch(() => {});
       });
     } else {
       alert('HLS is not supported in this browser.');
@@ -590,6 +652,7 @@ async function startStation(station){
 
   // UI text
   updateNowPlaying(station.name, station);
+  updateMediaSession(station.name, null, station);
 
   // Media Session
   if ('mediaSession' in navigator) {
@@ -603,61 +666,82 @@ async function startStation(station){
   }
 
   // Metadata polling if configured
-  if (station.metadataUrl) {
-    // SSE path
-    if (station.metadataFormat === 'sse' && 'EventSource' in window) {
-      sse = new EventSource(station.metadataUrl, { withCredentials: false });
+  if (station.metadataUrl || typeof station.metadataUrlBuilder === 'function') {
+    // SSE path only if we have a fixed URL
+    if (station.metadataUrl && station.metadataFormat === 'sse' && 'EventSource' in window) {
+      sse = new EventSource(station.metadataUrl, {
+        withCredentials: false
+      });
       sse.onmessage = (ev) => {
         try {
-          const arr = JSON.parse(ev.data);          // ev.data is the JSON after "data: "
+          const arr = JSON.parse(ev.data); // ev.data is the JSON after "data: "
           const item = Array.isArray(arr) ? arr[0] : null;
           if (!item) return;
-          if (item.station && item.station.toLowerCase() !== 'nightride') return; // keep only the nightride line
+          if (item.station && item.station.toLowerCase() !== 'nightride') return;
           const title = station.parseNowPlaying ? station.parseNowPlaying(item) : null;
           if (title != null) updateNowPlaying(title, station);
         } catch (_) {}
       };
-      sse.onerror = () => { /* network hiccup; browser auto-reconnects */ };
-  } else {
-    const poll = async () => {
-      try {
-        const res = await fetch(station.metadataUrl, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+      sse.onerror = () => {
+        /* browser will auto-reconnect */
+      };
+    } else {
+      // JSON/XML/TEXT polling (URL may be static or built each call)
+      const poll = async () => {
+        try {
+          const url = typeof station.metadataUrlBuilder === 'function' ?
+            station.metadataUrlBuilder() :
+            station.metadataUrl;
 
-        const ctype = (res.headers.get('content-type') || '').toLowerCase();
+          const res = await fetch(url, {
+            cache: 'no-store'
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
 
-        // Decide payload format:
-        const wantsXml = station.metadataFormat === 'xml' || /(^|\/)(xml|html)\b/.test(ctype) || /text\/plain/.test(ctype) && station.metadataFormat === 'xml';
+          const ctype = (res.headers.get('content-type') || '').toLowerCase();
 
-        const payload = wantsXml ? await res.text() : await res.json();
+          // Decide payload format:
+          const wantsXml = station.metadataFormat === 'xml' ||
+            /(^|\/)(xml|html)\b/.test(ctype) ||
+            (/text\/plain/.test(ctype) && station.metadataFormat === 'xml');
 
-        // Let each station's parser handle its own shape
-        const title = station.parseNowPlaying ? station.parseNowPlaying(payload) : null;
+          const wantsText = station.metadataFormat === 'text' ||
+            /text\/plain/.test(ctype);
 
-        if (title != null) updateNowPlaying(title, station);
+          const payload = wantsXml ? await res.text() :
+            wantsText ? await res.text() :
+            await res.json();
 
-      } catch (e) {
-        // quietly ignore CORS/HTTP/parse issues
-      }
-    };
-    poll();
-    metaTimer = setInterval(poll, 12000);
+          const parsed = station.parseNowPlaying ? station.parseNowPlaying(payload) : null;
+          if (parsed != null) updateNowPlaying(parsed, station);
+
+        } catch (e) {
+          // quietly ignore CORS/HTTP/parse issues
+        }
+      };
+
+      // initial + interval
+      poll();
+      metaTimer = setInterval(poll, 12000);
+    }
   }
 
-  }
 
 }
 
 
-function setPlayIcon(isPlaying){
+function setPlayIcon(isPlaying) {
   els.icoPlay.style.display = isPlaying ? 'none' : '';
   els.icoPause.style.display = isPlaying ? '' : 'none';
 }
 
 // Controls
 els.btnPlay.addEventListener('click', () => {
-  if(els.audio.paused){ els.audio.play(); }
-  else { els.audio.pause(); }
+  if (els.audio.paused) {
+    els.audio.play();
+  } else {
+    els.audio.pause();
+  }
 });
 
 els.audio.addEventListener('play', () => setPlayIcon(true));
@@ -670,13 +754,14 @@ els.volume.addEventListener('input', (e) => {
 
 // Keyboard shortcuts
 window.addEventListener('keydown', (e) => {
-  if(e.code === 'Space'){
+  if (e.code === 'Space') {
     e.preventDefault();
-    if(els.audio.paused) els.audio.play(); else els.audio.pause();
-  } else if(e.code === 'ArrowRight'){
+    if (els.audio.paused) els.audio.play();
+    else els.audio.pause();
+  } else if (e.code === 'ArrowRight') {
     els.volume.value = Math.min(1, parseFloat(els.volume.value) + 0.05);
     els.volume.dispatchEvent(new Event('input'));
-  } else if(e.code === 'ArrowLeft'){
+  } else if (e.code === 'ArrowLeft') {
     els.volume.value = Math.max(0, parseFloat(els.volume.value) - 0.05);
     els.volume.dispatchEvent(new Event('input'));
   }
@@ -687,4 +772,4 @@ renderStations();
 
 // Auto-start last station if saved
 const defaultStation = STATIONS.find(s => s.id === savedStationId) || STATIONS[0];
-if(defaultStation) startStation(defaultStation);
+if (defaultStation) startStation(defaultStation);
