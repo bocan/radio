@@ -117,55 +117,11 @@ h1{font-size:1.4rem; margin:0}
 .np .value{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 
 button.icon{
-  border:1px solid rgba(255,255,255,.06);
-  width:40px; height:40px; border-radius:12px;
-  display:grid; place-items:center; cursor:pointer;
-  transition:transform .08s ease, background .15s ease, color .15s ease, border-color .15s ease;
-
-  /* These come from per-button + theme vars */
-  background: var(--btn-bg, #0f1622);
-  color:      var(--btn-fg, var(--text));
-  border-color: var(--btn-border, rgba(255,255,255,.06));
+  border:0; background:#0f1622; color:var(--text); width:40px; height:40px; border-radius:12px;
+  display:grid; place-items:center; cursor:pointer; transition:transform .08s ease, background .15s ease;
 }
-button.icon:hover { background: var(--btn-bg-hover, #132033); }
-button.icon:active{ transform:scale(.98) }
-
-/* Per-button defaults (DARK THEME baseline) */
-.btn-theme {
-  --btn-fg:#facc15;           /* amber-ish sun/moon */
-  --btn-bg:#efefdc;     /* efefdc */
-  --btn-bg-hover:#132033;
-}
-.btn-play {
-  --btn-fg:#5cc8ff;           /* your accent blue */
-  --btn-bg:#0f1622;
-  --btn-bg-hover:#132033;
-}
-.btn-mute {
-  --btn-fg:#a8b3c6;           /* muted grey */
-  --btn-bg:#0f1622;
-  --btn-bg-hover:#132033;
-}
-
-/* LIGHT THEME overrides */
-html[data-theme="light"] .btn-theme {
-  --btn-fg:#7c3aed;           /* violet looks nice in light */
-  --btn-bg:#eef2f7;
-  --btn-bg-hover:#e2e8f0;
-  --btn-border: rgba(0,0,0,.08);
-}
-html[data-theme="light"] .btn-play {
-  --btn-fg:#0ea5e9;           /* cyan-ish for play in light */
-  --btn-bg:#eef2f7;
-  --btn-bg-hover:#e2e8f0;
-  --btn-border: rgba(0,0,0,.08);
-}
-html[data-theme="light"] .btn-mute {
-  --btn-fg:#334155;           /* slate for mute in light */
-  --btn-bg:#eef2f7;
-  --btn-bg-hover:#e2e8f0;
-  --btn-border: rgba(0,0,0,.08);
-}
+button.icon:hover{background:#132033}
+button.icon:active{transform:scale(.98)}
 
 .vol-wrap{display:flex; align-items:center; gap:8px; margin-left:auto}
 input[type="range"]{width:160px}
