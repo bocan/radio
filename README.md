@@ -107,8 +107,8 @@ web server is:
         add_header Cache-Control "public, max-age=15" always;
     }
 ```
-A warning. This is the only potentially sketchy part of this project because you could technically
-count this as "scraping" because you're pulling data from their API without permission. Now, as it
+A warning! This is the only potentially sketchy part of this project because you could technically
+count this as "scraping" since you're pulling data from their API without permission. Now, as it
 stands, they're unlikely to care because it's a tiny amount of traffic, and we're only checking every
 15 seconds, but ideally always check the station's terms of service, and if possible reach out to
 station.
