@@ -88,7 +88,16 @@ body{
 }
 .container{max-width:1100px; margin:0 auto; padding:24px 20px 120px}
 header{display:flex; align-items:center; gap:12px; margin-bottom:18px}
-.logo{width:36px; height:36px; border-radius:10px; background:radial-gradient(circle at 30% 30%, #6ee7ff, #4f46e5); box-shadow:0 6px 22px rgba(76, 201, 255, .25)}
+.logo{
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  background-image: url('android-chrome-192x192.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow:0 6px 22px rgba(76, 201, 255, .25)
+}
 h1{font-size:1.4rem; margin:0}
 
 /* Grid of station cards */
@@ -180,39 +189,38 @@ button.icon:active{transform:scale(.98)}
 /* Theme button in light mode */
 :root[data-theme="light"] .theme-toggle,
 :root:not([data-theme]) .theme-toggle {
-  background: #1e293b;  /* darker background to make yellow sun pop */
-  color: #fbbf24;       /* yellow sun icon */
+  background: #2e3f5b;  /* darker background to make yellow sun pop */
+  color: #ffffda;       /* yellow sun icon */
 }
 :root[data-theme="light"] .theme-toggle:hover,
 :root:not([data-theme]) .theme-toggle:hover {
   background: #0f172a;  /* even darker on hover */
-  color: #f59e0b;       /* slightly darker yellow on hover */
+  color: #ffff00;       /* slightly darker yellow on hover */
 }
 
 /* Theme button in dark mode */
 :root[data-theme="dark"] .theme-toggle {
-  background: #e2e8f0;  /* light bg in dark mode (matches the new player button color) */
-  color: #fbbf24;       /* bright yellow sun */
+  background: #587cab;  /* light bg in dark mode (matches the new player button color) */
+  color: #fffb7f;       /* bright yellow sun */
 }
 :root[data-theme="dark"] .theme-toggle:hover {
-  background: #cbd5e1;  /* slightly darker light bg on hover */
-  color: #f59e0b;       /* darker yellow on hover */
+  background: #1151a5;  /* slightly darker light bg on hover */
+  color: #ffff00;       /* darker yellow on hover */
 }
 
 /* Player buttons in dark mode (explicit for clarity) */
 :root[data-theme="dark"] .player .icon {
-  background: #0f1622;  /* dark bg */
+  background: #172234;  /* dark bg */
   color: var(--muted);
 }
 :root[data-theme="dark"] .player .icon:hover {
-  background: #132033;
+  background: #202f47;
   color: var(--text);
 }
 
 /* Info details beside Now Playing */
 .np-details {
   margin-left: 6px;
-  align-self: flex-start;  /* explicitly left-align within the .np container */
 }
 .np-details > summary {
   list-style: none;
