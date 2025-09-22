@@ -125,6 +125,12 @@ h1{font-size:1.4rem; margin:0}
 /* Fix: Ensure the now playing section takes available space, pushing controls right */
 .np{min-width:0; flex:1; display:flex; flex-direction:column; gap:2px; align-items: flex-start;}
 
+/* Info details beside Now Playing - ensure left alignment */
+.np-details {
+  margin-left: 6px;
+  align-self: flex-start;  /* explicitly left-align within the .np container */
+}
+
 /* Fix: Keep player controls grouped on the right */
 .player-controls {
   display: flex;
