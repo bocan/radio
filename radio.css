@@ -83,7 +83,7 @@ html,body{height:100%}
 body{
   margin:0; font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
   color:var(--text);
-  /* use two colors, not calc() */
+  /* use two colours, not calc() */
   background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 30%, var(--bg) 100%);
 }
 .container{max-width:1100px; margin:0 auto; padding:24px 20px 120px}
@@ -114,7 +114,7 @@ h1{font-size:1.4rem; margin:0}
 .title{ font-weight:700; color: var(--title); }
 .desc{color:var(--muted); font-size:.9rem}
 
-/* Sticky Player uses vars so it flips with theme */
+/* Sticky Player uses variables so it flips with theme */
 .player{
   position:fixed; left:0; right:0; bottom:0; backdrop-filter:saturate(1.2) blur(8px);
   background: var(--player-bg);
