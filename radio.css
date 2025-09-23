@@ -155,6 +155,9 @@ button.icon:active{transform:scale(.98)}
   gap: 8px;
 }
 
+.hint{margin-top:10px; color:var(--muted); font-size:.9rem}
+a{color:var(--accent)}
+
 /* Ensure volume slider doesn't break to new line */
 #volume {
   min-width: 80px;  /* or whatever width you prefer */
