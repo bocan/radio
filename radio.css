@@ -143,7 +143,7 @@ h1{font-size:1.4rem; margin:0}
 .np .value{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 
 button.icon{
-  border:0; width:40px; height:40px; border-radius:12px;
+  border:0; width:36px; height:36px; border-radius:12px;
   display:grid; place-items:center; cursor:pointer; transition:transform .08s ease, background .15s ease;
 }
 button.icon:active{transform:scale(.98)}
@@ -180,6 +180,8 @@ a{color:var(--accent)}
   display:grid; place-items:center; margin-left:auto;
   border: 0; cursor: pointer;
   transition: transform .08s ease, background .15s ease;
+  box-shadow: 0 6px 22px rgba(76, 201, 255, .25);
+  opacity: 0.8;
 }
 .theme-toggle:active { transform: scale(.98); }
 
