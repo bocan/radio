@@ -52,14 +52,14 @@ const STATIONS = [
     name: "Ambiant Sleeping Pill",
     location: "South Plainfield, New Jersey",
     description:
-      "<a href='https://ambientsleepingpill.com' target=_blank>Ambient Sleeping Pill</a> An internet radio station streaming music for Sleeping, taking Naps, and other more wakeful Moments; Tranquil, Deep, Serene; no breaks, no ads, no beats, no new-age cheese.",
+      "<a href='https://ambientsleepingpill.com' target=_blank>Ambient Sleeping Pill</a> is an internet radio station streaming music for Sleeping, taking Naps, and other more wakeful Moments; Tranquil, Deep, Serene; no breaks, no ads, no beats, no new-age cheese.",
     streams: [
       {
         url: "https://radio.stereoscenic.com/asp-h",
         type: "audio/mpeg",
       },
     ],
-    metadataUrl: "https://chris.funderburg.me/proxy/ambient",
+    metadataUrl: "https://liminaldial.net/proxy/ambient",
     parseNowPlaying: (data) => {
       const s = data?.streams?.[3];
       if (!data) return null;
@@ -131,7 +131,7 @@ const STATIONS = [
         type: "audio/mpeg",
       },
     ],
-    metadataUrl: "https://chris.funderburg.me/proxy/wwoz", // I proxy 'https://www.wwoz.org/api/tracks/current',
+    metadataUrl: "https://liminaldial.net/proxy/wwoz", // I proxy 'https://www.wwoz.org/api/tracks/current',
     parseNowPlaying: (data) => {
       if (!data) return null;
       const artist = (data.artist || "").trim();
@@ -157,7 +157,7 @@ const STATIONS = [
         type: "application/vnd.apple.mpegurl",
       },
     ],
-    metadataUrl: "https://chris.funderburg.me/thelot.json",
+    metadataUrl: "https://liminaldial.net/thelot.json",
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
       const show = data?.event?.summary;
@@ -238,7 +238,7 @@ const STATIONS = [
         type: "audio/aac",
       },
     ],
-    metadataUrl: "https://chris.funderburg.me/proxy/kiosk",
+    metadataUrl: "https://liminaldial.net/proxy/kiosk",
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
       const show = data?.shows?.current;
@@ -276,14 +276,14 @@ const STATIONS = [
         type: "audio/mpeg",
       },
     ],
-    metadataUrl: "https://chris.funderburg.me/proxy/caroline",
+    metadataUrl: "https://liminaldial.net/proxy/caroline",
     parseNowPlaying: (scheduleJson) => {
       // 1) Compute the show synchronously
       const show = getCurrentShowName(scheduleJson);
       //const presenterId = presenter_ID
 
       // 2) Kick off the second fetch and update the UI when it arrives
-      fetchJson("https://chris.funderburg.me/proxy/caroline2")
+      fetchJson("https://liminaldial.net/proxy/caroline2")
         .then((now) => {
           const song = now.songs?.[0] || {};
           const artist = (song.artist || "Unknown Artist").trim();
@@ -304,7 +304,7 @@ const STATIONS = [
     name: "KBOO FM",
     location: "Portland, Oregon",
     description:
-      "<a href='https://kboo.fm/' target=_blank>KBOO FM</a> KBOO is an independent, member-supported, non-commercial, volunteer-powered community radio station. KBOO embodies equitable social change, shares knowledge, and fosters creativity by delivering locally rooted and diverse music, culture, news, and opinions, with a commitment to the voices of oppressed and underserved communities..",
+      "<a href='https://kboo.fm/' target=_blank>KBOO FM</a> is an independent, member-supported, non-commercial, volunteer-powered community radio station. KBOO embodies equitable social change, shares knowledge, and fosters creativity by delivering locally rooted and diverse music, culture, news, and opinions, with a commitment to the voices of oppressed and underserved communities.",
     streams: [
       {
         url: "https://live.kboo.fm:8443/high",
@@ -313,7 +313,7 @@ const STATIONS = [
     ],
     metadataUrlBuilder: () => {
       const epoch = Math.floor(Date.now() / 1000) - 5;
-      return `https://chris.funderburg.me/proxy/kboo/${epoch}`;
+      return `https://liminaldial.net/proxy/kboo/${epoch}`;
     },
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
@@ -334,7 +334,7 @@ const STATIONS = [
         type: "audio/mpeg",
       },
     ],
-    metadataUrl: "https://chris.funderburg.me/proxy/ckut",
+    metadataUrl: "https://liminaldial.net/proxy/ckut",
     parseNowPlaying: (data) => {
       // .tracks.current.metadata.track_title'
       const show = (data?.program?.title_html || "").trim();

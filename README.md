@@ -3,7 +3,7 @@
 A simple, open-source web player for streaming curated internet radio stations.
 Built with **vanilla HTML/CSS/JS**, no frameworks required.
 
-It's running live at: [https://chris.funderburg.me/radio/](https://chris.funderburg.me/radio/)
+It's running live at: [https://liminaldial.net/](https://liminaldial.net/)
 
 ![screenshot placeholder](preview.jpg)
 
@@ -102,7 +102,7 @@ web server is:
         proxy_read_timeout 10s;
         proxy_set_header Host kioskradio.com;
         proxy_set_header User-Agent "radio-proxy";
-        add_header Access-Control-Allow-Origin "https://chris.funderburg.me" always;
+        add_header Access-Control-Allow-Origin "https://liminaldial.net" always;
         add_header Vary "Origin" always;
         add_header Cache-Control "public, max-age=15" always;
     }
