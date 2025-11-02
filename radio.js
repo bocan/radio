@@ -5,6 +5,7 @@ const TICKER_MESSAGES = [
   "Tip: Press Space to Play/Pause; ← / → to change volume.",
   'This radio player website is <a href="https://github.com/bocan/radio" target="_blank">open source</a>. Make your own if you like!',
   "Enjoying a particular station? Consider donating to them directly.",
+  'Visit <a href="https://chris.funderburg.me/" target="_blank">My Blog</a> for the best anonymous stalking opportunities. 😄',
   'If you enjoy the code or any of the stations, feel free to <a href="https://buymeacoffee.com/bocan" target=_blank>buy me a coffee</a>!  Donations support hosting costs and any surplus  will be split equally between these stations - as long as they have a donation method on their site.',
   "Both <a href='https://thelotradio.com/' target='_blank'>The Lot Radio</a> and <a href='https://kioskradio.com/' target='_blank'>Kiosk Radio</a> usually provide video streams! Check their sites.",
 ];
