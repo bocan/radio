@@ -6,25 +6,25 @@ const cfg = {
   baseCount: 15,
   sizeMin: 8,
   sizeMax: 18,
-  gravity: 22,          // px/s^2 downward
-  windBase: 10,         // px/s baseline horizontal drift
-  windOscAmp: 25,       // amplitude of oscillating wind
-  windOscFreq: 0.07,    // Hz
-  dragLin: 0.06,        // linear drag per second
-  angDrag: 0.04,        // angular damping per second
-  impulseRadius: 110,   // px area of mouse disturbance
+  gravity: 22, // px/s^2 downward
+  windBase: 10, // px/s baseline horizontal drift
+  windOscAmp: 25, // amplitude of oscillating wind
+  windOscFreq: 0.07, // Hz
+  dragLin: 0.06, // linear drag per second
+  angDrag: 0.04, // angular damping per second
+  impulseRadius: 110, // px area of mouse disturbance
   impulseStrength: 240, // impulse magnitude (scaled by cursor speed)
-  swirl: 0.9,           // bit of tangential spin imparted by cursor
-  respawnMargin: 24,    // px beyond edges before wrapping
-  maxSpeed: 360,        // hard clamp on velocity magnitude
+  swirl: 0.9, // bit of tangential spin imparted by cursor
+  respawnMargin: 24, // px beyond edges before wrapping
+  maxSpeed: 360, // hard clamp on velocity magnitude
 };
 
 const DPR = Math.max(1, Math.min(2, devicePixelRatio || 1));
-const canvas = document.getElementById('autumn-leaves');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("autumn-leaves");
+const ctx = canvas.getContext("2d");
 
 // Respect prefers-reduced-motion → fewer leaves and gentler physics
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 if (reduce) {
   cfg.baseCount = Math.round(cfg.baseCount * 0.35);
   cfg.gravity *= 0.5;
@@ -34,23 +34,71 @@ if (reduce) {
 
 // Palette: muted autumn tones
 const colors = [
-  '#c0392b', // maple red
-  '#d35400', // burnt orange
-  '#e67e22', // pumpkin
-  '#f39c12', // amber
-  '#a0522d', // sienna
-  '#8b5a2b', // saddle brown
-  '#b5651d', // rust
-  '#aa7f39', // golden brown
+  "#c0392b", // maple red
+  "#d35400", // burnt orange
+  "#e67e22", // pumpkin
+  "#f39c12", // amber
+  "#a0522d", // sienna
+  "#8b5a2b", // saddle brown
+  "#b5651d", // rust
+  "#aa7f39", // golden brown
+];
+
+// Winter detection (Dec/Jan/Feb). Override manually by setting to true/false.
+const isWinter = [10, 11, 0, 1].includes(new Date().getMonth());
+const snowColors = ["#ffffff", "#f2f7ff", "#e2edff", "#d6e6ff"];
+
+function radialStar(points, outer = 1, inner = 0.3, offset = 0) {
+  const pts = [];
+  const total = points * 2;
+  for (let i = 0; i < total; i++) {
+    const angle = offset + (i / total) * Math.PI * 2;
+    const r = i % 2 === 0 ? outer : inner;
+    pts.push({ x: Math.cos(angle) * r, y: Math.sin(angle) * r });
+  }
+  return pts;
+}
+
+function dendriteStar(arms = 6) {
+  const pts = [];
+  for (let i = 0; i < arms; i++) {
+    const base = (i / arms) * Math.PI * 2;
+    const tip = {
+      x: Math.cos(base),
+      y: Math.sin(base),
+    };
+    const mid = {
+      x: Math.cos(base) * 0.55,
+      y: Math.sin(base) * 0.55,
+    };
+    const left = {
+      x: mid.x + Math.cos(base + Math.PI / 2) * 0.25,
+      y: mid.y + Math.sin(base + Math.PI / 2) * 0.25,
+    };
+    const right = {
+      x: mid.x + Math.cos(base - Math.PI / 2) * 0.25,
+      y: mid.y + Math.sin(base - Math.PI / 2) * 0.25,
+    };
+    pts.push(mid, left, tip, right);
+  }
+  return pts;
+}
+
+const snowShapes = [
+  radialStar(6, 1, 0.2),
+  radialStar(12, 1, 0.4, Math.PI / 12),
+  dendriteStar(6),
+  radialStar(8, 1, 0.35, Math.PI / 16),
 ];
 
 // Utility RNGs
-const rand = (a=0, b=1) => a + Math.random() * (b - a);
+const rand = (a = 0, b = 1) => a + Math.random() * (b - a);
 const randInt = (a, b) => Math.floor(rand(a, b + 1));
-const choice = arr => arr[randInt(0, arr.length - 1)];
+const choice = (arr) => arr[randInt(0, arr.length - 1)];
 
 // Fit canvas to viewport with DPR scaling for crispness.
-let W = 0, H = 0;
+let W = 0,
+  H = 0;
 function fit() {
   const cssW = canvas.clientWidth;
   const cssH = canvas.clientHeight;
@@ -61,39 +109,64 @@ function fit() {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0); // render in CSS pixels
 }
 fit();
-addEventListener('resize', fit);
+addEventListener("resize", fit);
 
 // Pointer tracking (position + speed) for disturbance strength
-const pointer = { x: -9999, y: -9999, t: performance.now(), vx: 0, vy: 0, speed: 0 };
+const pointer = {
+  x: -9999,
+  y: -9999,
+  t: performance.now(),
+  vx: 0,
+  vy: 0,
+  speed: 0,
+};
 let hadMove = false;
-addEventListener('pointermove', (e) => {
-  const now = performance.now();
-  const dt = Math.max(1, now - pointer.t) / 1000;
-  const x = e.clientX, y = e.clientY;
-  const vx = (x - pointer.x) / dt;
-  const vy = (y - pointer.y) / dt;
-  const speed = Math.hypot(vx, vy);
-  pointer.x = x; pointer.y = y; pointer.vx = vx; pointer.vy = vy; pointer.speed = speed; pointer.t = now;
-  hadMove = true;
-}, { passive: true });
+addEventListener(
+  "pointermove",
+  (e) => {
+    const now = performance.now();
+    const dt = Math.max(1, now - pointer.t) / 1000;
+    const x = e.clientX,
+      y = e.clientY;
+    const vx = (x - pointer.x) / dt;
+    const vy = (y - pointer.y) / dt;
+    const speed = Math.hypot(vx, vy);
+    pointer.x = x;
+    pointer.y = y;
+    pointer.vx = vx;
+    pointer.vy = vy;
+    pointer.speed = speed;
+    pointer.t = now;
+    hadMove = true;
+  },
+  { passive: true }
+);
 // Hide pointer influence if it hasn't moved in a while
-addEventListener('pointerleave', () => { pointer.x = -9999; pointer.y = -9999; pointer.speed = 0; });
+addEventListener("pointerleave", () => {
+  pointer.x = -9999;
+  pointer.y = -9999;
+  pointer.speed = 0;
+});
 
 // Generate a soft, leaf‑ish polygon once per leaf (kept tiny for subtlety)
 function makeLeafPolygon() {
   const pts = [];
-  const n = randInt(8, 12);        // number of lobes/points
-  const bias = rand(0.9, 1.2);     // slight asymmetry
+  const n = randInt(8, 12); // number of lobes/points
+  const bias = rand(0.9, 1.2); // slight asymmetry
   for (let i = 0; i < n; i++) {
     const a = (i / n) * Math.PI * 2;
-    const r = (0.55 + 0.45 * Math.random()) * (1 + 0.25 * Math.sin(a * 3) );
+    const r = (0.55 + 0.45 * Math.random()) * (1 + 0.25 * Math.sin(a * 3));
     // Slightly wider than tall to look leafier
     pts.push({ x: Math.cos(a) * r * 1.1 * bias, y: Math.sin(a) * r });
   }
   // Add a tiny stem at the bottom (two extra points)
   pts.push({ x: -0.05, y: 1.05 });
-  pts.push({ x: 0.05,  y: 1.05 });
+  pts.push({ x: 0.05, y: 1.05 });
   return pts;
+}
+
+function makeSnowPolygon() {
+  return choice(snowShapes);
 }
 
 class Leaf {
@@ -121,42 +194,97 @@ class Leaf {
     ctx.beginPath();
     const p0 = this.poly[0];
     ctx.moveTo(p0.x, p0.y);
-    for (let i = 1; i < this.poly.length; i++) ctx.lineTo(this.poly[i].x, this.poly[i].y);
+    for (let i = 1; i < this.poly.length; i++)
+      ctx.lineTo(this.poly[i].x, this.poly[i].y);
     ctx.closePath();
     ctx.fillStyle = this.color;
     ctx.globalAlpha = 0.9;
     ctx.fill();
     ctx.globalAlpha = 1;
     ctx.lineWidth = 0.7 / Math.max(1, DPR);
-    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+    ctx.strokeStyle = "rgba(0,0,0,0.12)";
     ctx.stroke();
     // central vein (subtle)
     ctx.beginPath();
     ctx.moveTo(0, -0.6);
     ctx.lineTo(0, 0.8);
     ctx.lineWidth = 0.5 / Math.max(1, DPR);
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.strokeStyle = "rgba(255,255,255,0.25)";
     ctx.stroke();
     ctx.restore();
   }
 }
 
-// Create/maintain a field of leaves sized to viewport area
-const leaves = [];
+class Snow {
+  constructor(w, h) {
+    this.size = rand(cfg.sizeMin, cfg.sizeMax);
+    this.x = rand(-cfg.respawnMargin, w + cfg.respawnMargin);
+    this.y = rand(-h, -cfg.respawnMargin);
+    this.vx = rand(-8, 8);
+    this.vy = rand(8, 28);
+    this.angle = rand(0, Math.PI * 2);
+    this.spin = rand(-0.6, 0.6);
+    this.color = choice(snowColors);
+    this.poly = makeSnowPolygon();
+    this.twinkle = rand(0, Math.PI * 2);
+    this.twinkleSpeed = rand(0.7, 1.4);
+    this.sleep = rand(0, 6.5);
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    const s = this.size * 0.55;
+    ctx.scale(s, s);
+    ctx.beginPath();
+    const p0 = this.poly[0];
+    ctx.moveTo(p0.x, p0.y);
+    for (let i = 1; i < this.poly.length; i++)
+      ctx.lineTo(this.poly[i].x, this.poly[i].y);
+    ctx.closePath();
+    const alpha = 0.55 + 0.35 * Math.sin(this.twinkle);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = this.color;
+    ctx.shadowColor = "rgba(255,255,255,0.75)";
+    ctx.shadowBlur = 8;
+    ctx.fill("nonzero");
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = alpha * 0.8;
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 0.8 / Math.max(1, DPR);
+    ctx.strokeStyle = "rgba(110,150,200,0.55)";
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// Create/maintain a field sized to viewport area
+const particles = [];
 function desiredCount() {
   const area = (innerWidth * innerHeight) / (1280 * 720); // 720p baseline
   return Math.max(12, Math.round(cfg.baseCount * area));
 }
 function seed() {
-  leaves.length = 0;
-  for (let i = 0; i < desiredCount(); i++) leaves.push(new Leaf(innerWidth, innerHeight));
+  particles.length = 0;
+  for (let i = 0; i < desiredCount(); i++) {
+    particles.push(
+      isWinter
+        ? new Snow(innerWidth, innerHeight)
+        : new Leaf(innerWidth, innerHeight)
+    );
+  }
 }
 seed();
-addEventListener('resize', () => {
+addEventListener("resize", () => {
   // Adjust population on resize
   const target = desiredCount();
-  while (leaves.length < target) leaves.push(new Leaf(innerWidth, innerHeight));
-  while (leaves.length > target) leaves.pop();
+  while (particles.length < target)
+    particles.push(
+      isWinter
+        ? new Snow(innerWidth, innerHeight)
+        : new Leaf(innerWidth, innerHeight)
+    );
+  while (particles.length > target) particles.pop();
 });
 
 // Animation loop
@@ -169,9 +297,10 @@ function tick(now) {
 
   // Time‑varying wind
   const t = now / 1000;
-  const wind = cfg.windBase + cfg.windOscAmp * Math.sin(t * Math.PI * 2 * cfg.windOscFreq);
+  const wind =
+    cfg.windBase + cfg.windOscAmp * Math.sin(t * Math.PI * 2 * cfg.windOscFreq);
 
-  for (const leaf of leaves) {
+  for (const leaf of particles) {
     // Skip updates/draws while leaf is in staggered respawn delay
     if (leaf.sleep && leaf.sleep > 0) {
       leaf.sleep -= dt;
@@ -179,7 +308,7 @@ function tick(now) {
     }
 
     // Forces
-    let ax = wind * 0.15;      // convert wind drift to acceleration
+    let ax = wind * 0.15; // convert wind drift to acceleration
     let ay = cfg.gravity;
 
     // Mouse disturbance (only when pointer has moved recently)
@@ -189,15 +318,18 @@ function tick(now) {
       const d = Math.hypot(dx, dy);
       if (d < cfg.impulseRadius) {
         const falloff = 1 - d / cfg.impulseRadius; // 0..1
-        const impulse = (cfg.impulseStrength * falloff) * (1 + Math.min(pointer.speed, 1200) / 600);
+        const impulse =
+          cfg.impulseStrength *
+          falloff *
+          (1 + Math.min(pointer.speed, 1200) / 600);
         // Radial push + a swirl component
         const nx = dx / (d || 1);
         const ny = dy / (d || 1);
         ax += nx * impulse;
         ay += ny * impulse;
         // Tangential swirl → perpendicular vector (-ny, nx)
-        ax += (-ny) * impulse * cfg.swirl * 0.4;
-        ay += ( nx) * impulse * cfg.swirl * 0.4;
+        ax += -ny * impulse * cfg.swirl * 0.4;
+        ay += nx * impulse * cfg.swirl * 0.4;
         leaf.spin += (Math.random() - 0.5) * 0.6 * falloff;
       }
     }
@@ -205,32 +337,34 @@ function tick(now) {
     // Integrate with simple semi‑implicit Euler & drag
     leaf.vx += ax * dt;
     leaf.vy += ay * dt;
-    leaf.vx *= (1 - cfg.dragLin * dt);
-    leaf.vy *= (1 - cfg.dragLin * dt);
+    leaf.vx *= 1 - cfg.dragLin * dt;
+    leaf.vy *= 1 - cfg.dragLin * dt;
 
     // Clamp
     const spd = Math.hypot(leaf.vx, leaf.vy);
     if (spd > cfg.maxSpeed) {
       const k = cfg.maxSpeed / (spd || 1);
-      leaf.vx *= k; leaf.vy *= k;
+      leaf.vx *= k;
+      leaf.vy *= k;
     }
 
     leaf.x += leaf.vx * dt;
     leaf.y += leaf.vy * dt;
-    leaf.spin *= (1 - cfg.angDrag * dt);
+    leaf.spin *= 1 - cfg.angDrag * dt;
     leaf.angle += leaf.spin * dt;
-    leaf.wobble += leaf.wobbleSpeed * dt;
+    if (leaf.wobble !== undefined) leaf.wobble += leaf.wobbleSpeed * dt;
+    if (leaf.twinkle !== undefined) leaf.twinkle += leaf.twinkleSpeed * dt;
 
     // Wrap/respawn when off‑screen
     const m = cfg.respawnMargin;
     if (leaf.y > innerHeight + m) {
       // Staggered respawn to avoid bursts
-      leaf.sleep = rand(0.2, 10.5);
+      leaf.sleep = rand(0.2, isWinter ? 6.5 : 10.5);
       leaf.y = -m;
       leaf.x = rand(-m, innerWidth + m);
-      leaf.vy = rand(10, 40);
+      leaf.vy = rand(isWinter ? 8 : 10, isWinter ? 28 : 40);
       leaf.vx = rand(-10, 10);
-      leaf.spin = rand(-1.2, 1.2);
+      leaf.spin = rand(isWinter ? -0.6 : -1.2, isWinter ? 0.6 : 1.2);
       continue;
     }
     if (leaf.x < -m) leaf.x = innerWidth + m;
@@ -241,7 +375,10 @@ function tick(now) {
   }
 
   // Decay pointer velocity influence if the mouse stops
-  if (hadMove && now - pointer.t > 160) { pointer.speed *= 0.9; if (pointer.speed < 5) hadMove = false; }
+  if (hadMove && now - pointer.t > 160) {
+    pointer.speed *= 0.9;
+    if (pointer.speed < 5) hadMove = false;
+  }
 
   requestAnimationFrame(tick);
 }
